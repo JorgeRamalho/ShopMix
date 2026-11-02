@@ -25,58 +25,137 @@
 <body data-page="conta">
   <header class="site-header" id="site-header"></header>
   <main id="conteudo" class="section">
-    <div class="wrap account-grid split-desk">
-      <section class="panel">
-        <div class="tabs" role="tablist">
-          <button type="button" data-tab="login" aria-selected="true">Entrar</button>
-          <button type="button" data-tab="register" aria-selected="false">Criar conta</button>
-        </div>
-        <div id="pane-login">
+    <div class="wrap account-auth-split" id="auth-guest">
+      <div class="auth-login-column">
+        <section class="panel auth-login-panel" id="auth-login-block">
+          <div class="tabs auth-tabs" role="tablist" id="auth-tabs">
+            <button type="button" data-tab="login" aria-selected="true">Entrar</button>
+            <button type="button" data-tab="register" aria-selected="false">Criar conta</button>
+          </div>
           <h1>Olá de novo</h1>
-          <form id="login-form">
+          <form id="login-form" class="stack-form">
             <div class="field"><label for="login-email">E-mail</label><input id="login-email" name="email" type="email" required autocomplete="username"></div>
-            <div class="field"><label for="login-pass">Senha</label><input id="login-pass" name="senha" type="password" required autocomplete="current-password"></div>
+            <div class="field field-password">
+              <label for="login-pass">Senha</label>
+              <div class="password-input-wrap">
+                <input id="login-pass" name="senha" type="password" required autocomplete="current-password">
+                <button type="button" class="password-toggle" data-password-for="login-pass" aria-label="Mostrar senha" aria-pressed="false">
+                  <span class="password-toggle-label">Ver</span>
+                </button>
+              </div>
+            </div>
             <p class="form-error" id="login-error" role="alert"></p>
             <button class="btn btn-primary" type="submit">Entrar</button>
+            <p class="meta login-legal-note">Ao entrar, você confirma que leu os <a class="legal-consent-link" href="pages/termos.html" data-terms-section="">Termos e políticas</a> vigentes na data do acesso.</p>
           </form>
-        </div>
-        <div id="pane-register" hidden>
-          <h2>Criar conta Mix</h2>
-          <form id="register-form">
-            <div class="field"><label for="reg-nome">Nome</label><input id="reg-nome" name="nome" required autocomplete="name"></div>
-            <div class="field"><label for="reg-email">E-mail</label><input id="reg-email" name="email" type="email" required autocomplete="email"></div>
-            <div class="field"><label for="reg-pass">Senha</label><input id="reg-pass" name="senha" type="password" required minlength="8" autocomplete="new-password"></div>
-            <div class="field"><label for="reg-ok">Confirmar senha</label><input id="reg-ok" name="confirma" type="password" required></div>
-            <label class="check"><input name="termos" type="checkbox"> Aceito os termos e a política de privacidade</label>
-            <p class="form-error" id="reg-error" role="alert"></p>
-            <button class="btn btn-primary" type="submit">Cadastrar</button>
-          </form>
-        </div>
-        <div id="session-box" hidden>
-          <p>Conectado como <strong id="session-name"></strong></p>
-          <button class="btn btn-ghost" id="logout" type="button">Sair</button>
-        </div>
-      </section>
-      <div class="account-side">
-        <section class="panel" id="mixpay">
-          <h2>MixPay</h2>
-          <p class="meta">Pagamento protegido: o valor fica em custódia até você confirmar que recebeu o pedido. Use Pix ou cartão no checkout.</p>
         </section>
-        <section class="panel" id="compras">
-          <h2>Compras</h2>
-          <div id="orders-list"></div>
-        </section>
-        <section class="panel" id="favoritos">
-          <h2>Favoritos</h2>
-          <div class="product-grid" id="wish-grid"></div>
-        </section>
+        <div class="auth-login-aside">
+          <section class="panel">
+            <h2>Seu painel Mix</h2>
+            <p class="meta">Depois de entrar, você vê pedidos, favoritos, atalhos para vender e resumo da conta em um dashboard único.</p>
+          </section>
+          <section class="panel" id="mixpay-guest">
+            <h2>MixPay</h2>
+            <p class="meta">Pagamento protegido: o valor fica em custódia até você confirmar que recebeu o pedido.</p>
+          </section>
+        </div>
       </div>
+
+      <section class="panel auth-register-panel" id="auth-register-block">
+        <h2>Criar conta Mix</h2>
+        <form id="register-form" class="stack-form">
+          <div class="field"><label for="reg-nome">Nome completo</label><input id="reg-nome" name="nome" required autocomplete="name"></div>
+          <div class="field"><label for="reg-email">E-mail</label><input id="reg-email" name="email" type="email" required autocomplete="email"></div>
+          <div class="field-row">
+            <div class="field"><label for="reg-tel">Telefone</label><input id="reg-tel" name="telefone" type="tel" autocomplete="tel"></div>
+            <div class="field"><label for="reg-cpf">CPF (opcional)</label><input id="reg-cpf" name="cpf" inputmode="numeric" autocomplete="off"></div>
+          </div>
+          <div class="field field-password">
+            <label for="reg-pass">Senha</label>
+            <div class="password-input-wrap">
+              <input id="reg-pass" name="senha" type="password" required minlength="8" autocomplete="new-password">
+              <button type="button" class="password-toggle" data-password-for="reg-pass" aria-label="Mostrar senha" aria-pressed="false">
+                <span class="password-toggle-label">Ver</span>
+              </button>
+            </div>
+          </div>
+          <div class="field field-password">
+            <label for="reg-ok">Confirmar senha</label>
+            <div class="password-input-wrap">
+              <input id="reg-ok" name="confirma" type="password" required autocomplete="new-password">
+              <button type="button" class="password-toggle" data-password-for="reg-ok" aria-label="Mostrar senha" aria-pressed="false">
+                <span class="password-toggle-label">Ver</span>
+              </button>
+            </div>
+            <p class="form-hint form-hint--success" id="reg-pass-match" role="status" aria-live="polite" hidden></p>
+          </div>
+          <div class="field seller-intent-panel">
+            <label class="check seller-intent-check" for="deseja-vendedor">
+              <input id="deseja-vendedor" name="deseja_vendedor" type="checkbox">
+              <span><strong>Desejo ser vendedor</strong> — quero abrir loja e anunciar produtos no ShopMix.</span>
+            </label>
+            <p class="meta">Se marcar, após cadastrar você vai direto ao formulário de loja (CNPJ e dados fiscais).</p>
+          </div>
+          <fieldset class="legal-consents">
+            <legend class="legal-consents-legend">Termos, privacidade e proteção da identidade</legend>
+            <div class="legal-consents-inner">
+              <p class="legal-consents-intro">Documentos completos em <a class="legal-consent-link" href="pages/termos.html" data-terms-section="">Termos e políticas</a>. Marque todos os itens obrigatórios:</p>
+              <ul class="legal-consents-list">
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_termos_uso" type="checkbox" required><span class="legal-consent-text">Li e aceito os <a class="legal-consent-link" href="pages/termos.html" data-terms-section="termos-uso">Termos de Uso</a>.</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_privacidade" type="checkbox" required><span class="legal-consent-text">Li e aceito a <a class="legal-consent-link" href="pages/termos.html" data-terms-section="privacidade">Política de Privacidade (LGPD)</a>.</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_protecao_identidade" type="checkbox" required><span class="legal-consent-text">Aceito a <a class="legal-consent-link" href="pages/termos.html" data-terms-section="protecao-identidade">Política de proteção à identidade</a> e medidas anti-fraude.</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_tratamento_dados" type="checkbox" required><span class="legal-consent-text">Autorizo o <a class="legal-consent-link" href="pages/termos.html" data-terms-section="tratamento-dados">tratamento de dados pessoais</a> para conta, compras, vendas e MixPay.</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_cdc" type="checkbox" required><span class="legal-consent-text">Estou ciente dos <a class="legal-consent-link" href="pages/termos.html" data-terms-section="cdc">direitos do consumidor (CDC)</a>.</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_cookies" type="checkbox" required><span class="legal-consent-text">Aceito a política de <a class="legal-consent-link" href="pages/termos.html" data-terms-section="cookies">cookies essenciais</a> do serviço.</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_judicial" type="checkbox" required><span class="legal-consent-text">Aceito as <a class="legal-consent-link" href="pages/termos.html" data-terms-section="judicial">disposições judiciais</a> (lei brasileira e foro).</span></label>
+                </li>
+                <li class="legal-consent-item">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_veracidade" type="checkbox" required><span class="legal-consent-text">Declaro <a class="legal-consent-link" href="pages/termos.html" data-terms-section="veracidade-dados">veracidade e titularidade</a> dos dados informados.</span></label>
+                </li>
+                <li class="legal-consent-item legal-consent-item--optional">
+                  <label class="legal-consent-label"><input class="legal-consent-input" name="consent_marketing" type="checkbox"><span class="legal-consent-text">Quero <a class="legal-consent-link" href="pages/termos.html" data-terms-section="marketing-optin">ofertas por e-mail ou SMS</a> <em>(opcional)</em>.</span></label>
+                </li>
+              </ul>
+            </div>
+          </fieldset>
+          <p class="form-error" id="reg-error" role="alert"></p>
+          <p class="meta auth-register-hint">Se você já tentou entrar e a senha não funciona, use <strong>Criar conta</strong> com o mesmo e-mail para atualizar a senha neste navegador.</p>
+          <button class="btn btn-primary" type="submit">Cadastrar</button>
+        </form>
+      </section>
     </div>
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem("shopmix.session");
+          if (!raw) return;
+          var sess = JSON.parse(raw);
+          if (!sess || !sess.userId) return;
+          location.replace("pages/painel.html");
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
   </main>
   <footer class="site-footer" id="site-footer"></footer>
   <div class="app-nav" id="app-nav"></div>
   <div class="toast-stack" id="toast-stack"></div>
   <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
   <script src="js/shopmix.js"></script>
 </body>
 </html>

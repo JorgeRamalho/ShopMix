@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem("shopmix.session");
+        if (!raw) {
+          location.replace("pages/conta.html");
+          return;
+        }
+        var sess = JSON.parse(raw);
+        if (!sess || !sess.userId) location.replace("pages/conta.html");
+      } catch (e) {
+        location.replace("pages/conta.html");
+      }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Painel da conta | ShopMix</title>
+  <meta name="description" content="Portal do cliente ShopMix: pedidos, favoritos, dados da conta e atalhos MixPay.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body class="portal-page" data-page="painel">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section portal-shell">
+    <div class="wrap dashboard" id="account-dashboard">
+      <p class="portal-ingress-kicker">Portal ShopMix</p>
+      <header class="dashboard-head">
+        <div>
+          <p class="kicker">Painel da conta</p>
+          <h1 id="dashboard-greeting">Olá</h1>
+          <p class="meta" id="dashboard-sub"></p>
+        </div>
+        <div class="dashboard-head-actions">
+          <a class="btn btn-ghost" href="catalogo.html">Continuar comprando</a>
+          <button class="btn btn-ghost" id="logout" type="button">Sair</button>
+        </div>
+      </header>
+
+      <div class="dashboard-stats" id="dashboard-stats" aria-label="Resumo"></div>
+
+      <div class="dashboard-grid">
+        <section class="panel dashboard-profile" id="dashboard-profile">
+          <h2>Seus dados</h2>
+          <dl class="profile-dl" id="profile-dl"></dl>
+        </section>
+
+        <section class="panel dashboard-quick">
+          <h2>Atalhos</h2>
+          <nav class="quick-links" id="dashboard-quick-links"></nav>
+        </section>
+
+        <section class="panel" id="mixpay">
+          <h2>MixPay</h2>
+          <p class="meta">Pagamento protegido: o valor fica em custódia até você confirmar que recebeu o pedido. Use Pix ou cartão no checkout.</p>
+        </section>
+
+        <section class="panel dashboard-span-2" id="compras">
+          <h2>Compras recentes</h2>
+          <div id="orders-list"></div>
+        </section>
+
+        <section class="panel dashboard-span-2" id="favoritos">
+          <h2>Favoritos</h2>
+          <div class="product-grid" id="wish-grid"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

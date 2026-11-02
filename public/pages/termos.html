@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+  <script>
+    (function () {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      if (location.hash) {
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+      window.scrollTo(0, 0);
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Termos, privacidade e proteção de identidade | ShopMix</title>
+  <meta name="description" content="Termos de Uso, Política de Privacidade LGPD, proteção de identidade, CDC, cookies e disposições judiciais do ShopMix.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="termos">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section legal-page">
+    <div class="wrap">
+      <article class="article legal-intro">
+        <p class="kicker">Documentos legais</p>
+        <h1>Termos, privacidade e proteção da identidade</h1>
+        <p class="meta">Última atualização: 2 de novembro de 2026 · Controlador: ShopMix Marketplace Híbrido (protótipo). Vigência para cadastros de clientes e vendedores no Brasil.</p>
+        <nav class="legal-toc" aria-label="Índice">
+          <a href="#termos-uso">Termos de Uso</a>
+          <a href="#privacidade">Política de Privacidade (LGPD)</a>
+          <a href="#tratamento-dados">Tratamento de dados</a>
+          <a href="#protecao-identidade">Proteção de identidade</a>
+          <a href="#veracidade-dados">Veracidade dos dados</a>
+          <a href="#cdc">Direitos do consumidor (CDC)</a>
+          <a href="#cookies">Cookies e tecnologias</a>
+          <a href="#judicial">Disposições judiciais</a>
+          <a href="#marketing-optin">Comunicações promocionais</a>
+          <a href="#contato-dpo">Encarregado e contato</a>
+        </nav>
+      </article>
+
+      <article class="article legal-doc" id="termos-uso">
+        <h2>1. Termos de Uso do Marketplace</h2>
+        <p>Ao criar conta, comprar, vender ou navegar no ShopMix, você celebra contrato de adesão eletrônico nos termos do Código Civil e do Marco Civil da Internet (Lei nº 12.965/2014).</p>
+        <h3>1.1 Objeto</h3>
+        <p>O ShopMix é vitrine híbrida que aproxima compradores e vendedores, oferece busca, checkout, MixPay (custódia de pagamento no protótipo) e ferramentas de loja. A plataforma não é parte do contrato de compra e venda entre consumidor e lojista, salvo quando indicado como vendedor direto.</p>
+        <h3>1.2 Cadastro e elegibilidade</h3>
+        <p>Contas exigem capacidade civil (18 anos ou emancipado) ou uso com responsável legal. É proibido cadastro com identidade falsa, documentos de terceiros ou bots automatizados para fraude.</p>
+        <h3>1.3 Conta e segurança</h3>
+        <p>Você responde por credenciais, dispositivos e atividades na conta. Notifique imediatamente suspeita de acesso indevido em <a href="mailto:privacidade@shopmix.app">privacidade@shopmix.app</a>.</p>
+        <h3>1.4 Conduta</h3>
+        <p>É vedado: violar leis, anunciar produtos ilícitos, praticar phishing, scraping abusivo, manipular avaliações ou contornar sistemas de pagamento e entrega.</p>
+        <h3>1.5 Suspensão</h3>
+        <p>Podemos suspender ou encerrar contas por violação destes termos, ordem judicial ou risco à comunidade, com registro em log de auditoria quando aplicável.</p>
+      </article>
+
+      <article class="article legal-doc" id="privacidade">
+        <h2>2. Política de Privacidade — Lei nº 13.709/2018 (LGPD)</h2>
+        <p>Tratamos dados pessoais com finalidades determinadas, transparência e segurança, em conformidade com a LGPD e regulamentações da ANPD.</p>
+        <h3>2.1 Controlador e operação</h3>
+        <p><strong>Controlador:</strong> ShopMix. <strong>Encarregado (DPO):</strong> ver seção 6. Neste protótipo, dados ficam no dispositivo (<code>shopmix.db.v1</code>); em produção, servidores contratados com cláusulas de proteção de dados.</p>
+        <h3>2.2 Dados coletados no cadastro</h3>
+        <ul>
+          <li>Identificação: nome completo, e-mail, telefone, CPF (opcional);</li>
+          <li>Autenticação: senha (hash SHA-256 no protótipo; bcrypt/Argon2 em produção);</li>
+          <li>Transacionais: pedidos, endereço de entrega no checkout, histórico de favoritos e carrinho;</li>
+          <li>Vendedor: razão social/nome da loja, CNPJ, CEP fiscal, descrição comercial;</li>
+          <li>Técnicos: logs essenciais, consentimentos com data/hora, preferências de cookies.</li>
+        </ul>
+        <h3 id="tratamento-dados">2.3 Bases legais e tratamento (art. 7º LGPD)</h3>
+        <ul>
+          <li><strong>Execução de contrato</strong> — conta, compras, vendas, entrega, MixPay;</li>
+          <li><strong>Consentimento</strong> — marketing, cookies não essenciais, CPF quando opcional;</li>
+          <li><strong>Legítimo interesse</strong> — prevenção à fraude, segurança, melhoria do serviço (com balanceamento de direitos);</li>
+          <li><strong>Obrigação legal</strong> — notas fiscais, resposta a autoridades, CDC.</li>
+        </ul>
+        <h3>2.4 Direitos do titular (art. 18)</h3>
+        <p>Você pode solicitar: confirmação de tratamento, acesso, correção, anonimização, portabilidade, eliminação (salvo retenção legal), informação sobre compartilhamento e revogação de consentimento. Prazo de resposta: até 15 dias, prorrogável conforme LGPD.</p>
+        <h3>2.5 Retenção e eliminação</h3>
+        <p>Mantemos dados pelo tempo necessário às finalidades e prazos legais (fiscal, consumerista, disputas). Após encerramento da conta, eliminamos ou anonimizamos, exceto obrigações legais.</p>
+        <h3>2.6 Compartilhamento</h3>
+        <p>Com transportadoras, gateways de pagamento, autoridades e prestadores sob contrato de confidencialidade. Não vendemos dados pessoais.</p>
+        <h3 id="marketing-optin">2.7 Comunicações promocionais (opcional)</h3>
+        <p>Ofertas por e-mail ou SMS dependem de consentimento específico no cadastro. Você pode revogar a qualquer momento pelo painel da conta ou e-mail ao encarregado de dados.</p>
+      </article>
+
+      <article class="article legal-doc" id="protecao-identidade">
+        <h2>3. Política de proteção à identidade</h2>
+        <p>Protegemos sua identidade digital e documentos contra uso indevido, vazamento e falsificação.</p>
+        <h3 id="veracidade-dados">3.1 Veracidade e titularidade</h3>
+        <p>Você declara que nome, e-mail, telefone, CPF e CNPJ (quando informados) são seus ou de pessoa jurídica que representa legalmente. Informações falsas configuram violação contratual e podem ser comunicadas às autoridades.</p>
+        <h3>3.2 Medidas de segurança</h3>
+        <p>Criptografia de senha, sessão autenticada, minimização de dados, segregação de perfis comprador/vendedor e trilha de auditoria (<code>auditLog</code>) para eventos sensíveis de conta e loja.</p>
+        <h3>3.3 Incidentes</h3>
+        <p>Em caso de incidente de segurança com risco relevante, comunicaremos titulares e a ANPD nos termos da LGPD, com medidas de mitigação.</p>
+        <h3>3.4 Anti-fraude e identidade</h3>
+        <p>Podemos cruzar sinais de risco (múltiplas contas, CNPJ duplicado, padrões de chargeback) para proteger compradores e vendedores legítimos, sempre com registro e possibilidade de contestação.</p>
+      </article>
+
+      <article class="article legal-doc" id="cdc">
+        <h2>4. Direitos do consumidor — CDC (Lei nº 8.078/1990)</h2>
+        <p>Compras no ShopMix observam transparência, informação clara sobre preço, frete, prazo e vendedor responsável.</p>
+        <ul>
+          <li>Arrependimento em compras à distância: 7 dias após recebimento, salvo exceções legais;</li>
+          <li>Produto com vício: reparo, substituição ou restituição conforme CDC;</li>
+          <li>Publicidade enganosa e preço anterior fictício são proibidos (vendedor responsável);</li>
+          <li>Canal de atendimento: <a href="mailto:contato@shopmix.app">contato@shopmix.app</a> e página <a href="pages/conscientizacao.html">Conscientização</a>.</li>
+        </ul>
+        <p>A plataforma facilita contato e registro de reclamações; a responsabilidade solidária ou subsidiária segue o CDC e jurisprudência aplicável ao marketplace.</p>
+      </article>
+
+      <article class="article legal-doc" id="cookies">
+        <h2>5. Cookies e tecnologias similares</h2>
+        <p><strong>Essenciais:</strong> sessão, carrinho, preferências de consentimento — necessários ao serviço.</p>
+        <p><strong>Analíticos/personalização:</strong> somente após aceite no banner; você pode recusar cookies não essenciais sem perder compra básica.</p>
+        <p>Detalhes adicionais em <a href="pages/conscientizacao.html#privacidade">Conscientização · LGPD</a>.</p>
+      </article>
+
+      <article class="article legal-doc" id="judicial">
+        <h2>6. Disposições judiciais e contratuais</h2>
+        <h3>6.1 Lei aplicável</h3>
+        <p>Legislação da República Federativa do Brasil, incluindo Código Civil, CDC, LGPD, Marco Civil e normas consumeristas específicas.</p>
+        <h3>6.2 Foro</h3>
+        <p>Fica eleito o foro da comarca do domicílio do consumidor para relações de consumo (CDC, art. 101, I). Para vendedores pessoa jurídica em litígios exclusivamente B2B com a plataforma, foro da comarca de São Paulo/SP, salvo disposição legal imperativa em contrário.</p>
+        <h3>6.3 Alterações</h3>
+        <p>Alterações materiais serão comunicadas por e-mail ou aviso na conta com antecedência razoável. Uso continuado após vigência implica concordância, ressalvado direito de encerrar a conta.</p>
+        <h3>6.4 Integralidade</h3>
+        <p>Estes documentos, o checkout, contratos de vendedor e anexos de MixPay constituem acordo integral sobre o tema.</p>
+        <h3>6.5 Mediação</h3>
+        <p>Antes de judicializar, incentivamos canal <a href="mailto:ouvidoria@shopmix.app">ouvidoria@shopmix.app</a> e plataformas de consumo quando cabível.</p>
+      </article>
+
+      <article class="article legal-doc" id="contato-dpo">
+        <h2>7. Encarregado de dados (DPO) e contato</h2>
+        <p><strong>Privacidade / LGPD:</strong> <a href="mailto:privacidade@shopmix.app">privacidade@shopmix.app</a></p>
+        <p><strong>Ouvidoria:</strong> <a href="mailto:ouvidoria@shopmix.app">ouvidoria@shopmix.app</a></p>
+        <p><strong>Atendimento geral:</strong> <a href="mailto:contato@shopmix.app">contato@shopmix.app</a> · seg–sex, 9h–18h (Brasília)</p>
+      </article>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

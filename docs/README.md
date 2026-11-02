@@ -5,6 +5,7 @@ Quatro pastas, um assunto cada. Cada arquivo cobre um tema só.
 | Pasta | Arquivo | Conteúdo |
 | --- | --- | --- |
 | [planejamento](planejamento/visao-e-escopo.md) | `visao-e-escopo.md` | O que o produto é, quais rotas existem e o que fica de fora |
+| [planejamento](planejamento/banco-de-dados.md) | `banco-de-dados.md` | Entidades, jornadas cliente/vendedor, DDL e migração futura (Supabase) |
 | [pesquisas](pesquisas/referencias-de-mercado.md) | `referencias-de-mercado.md` | Referências de mercado que orientam a interface |
 | [estrutura](estrutura/arquitetura-de-pastas.md) | `arquitetura-de-pastas.md` | Contrato de pastas e o que permanece na raiz |
 | [organizacao](organizacao/convencoes.md) | `convencoes.md` | Como nomear, ligar e acrescentar arquivos |

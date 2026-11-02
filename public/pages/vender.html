@@ -25,42 +25,160 @@
 <body data-page="vender">
   <header class="site-header" id="site-header"></header>
   <main id="conteudo" class="section">
-    <div class="wrap split-desk">
-      <section>
-        <p class="kicker">Lado vendedor</p>
-        <h1>Abra uma loja sem esconder a operação.</h1>
-        <p>Painel com cadastro mínimo no primeiro anúncio e riqueza depois — o caminho que marketplaces sadios usam para não matar a oferta.</p>
-        <ul>
-          <li>Reputação e prazo visíveis no card</li>
-          <li>Opção Mix Full para fulfillment</li>
-          <li>Análise de CNPJ e categoria</li>
-        </ul>
-      </section>
-      <form class="panel" id="seller-form">
-        <h2>Cadastro de loja</h2>
-        <div class="field"><label for="loja">Nome da loja</label><input id="loja" name="loja" required></div>
-        <div class="field"><label for="cnpj">CNPJ</label><input id="cnpj" name="cnpj" required inputmode="numeric" autocomplete="off"></div>
-        <div class="field"><label for="cat">Categoria principal</label>
-          <select id="cat" name="cat" required>
-            <option value="">Selecione</option>
-            <option>Tecnologia</option>
-            <option>Moda</option>
-            <option>Casa</option>
-            <option>Beleza</option>
-            <option>Outros</option>
-          </select>
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Lado vendedor</p>
+          <h1>Painel de loja e produtos</h1>
+          <p class="meta">Cadastro mínimo na abertura, catálogo completo depois — dados gravados no banco local do protótipo (espelho do Postgres).</p>
         </div>
-        <div class="field"><label for="sobre">Sobre a operação</label><textarea id="sobre" name="sobre" required minlength="20"></textarea></div>
-        <p class="form-error" id="seller-error" role="alert"></p>
-        <button class="btn btn-primary" type="submit">Enviar para análise</button>
-        <p class="meta" id="seller-ok" hidden>Recebemos seu pedido. A equipe Mix responde em até 2 dias úteis.</p>
-      </form>
+      </div>
+
+      <p class="panel meta seller-hint" id="seller-login-hint" hidden>
+        <a href="conta.html">Entre ou crie uma conta</a> antes de abrir loja e publicar produtos. Assim vinculamos CNPJ, anúncios e pedidos ao mesmo perfil.
+      </p>
+
+      <div class="panel" id="seller-store-panel" hidden>
+        <h2>Sua loja</h2>
+        <p><strong id="seller-store-name"></strong></p>
+        <p class="meta" id="seller-store-meta"></p>
+      </div>
+
+      <div class="tabs seller-tabs" role="tablist">
+        <button type="button" data-seller-tab="loja" aria-selected="true">Cadastro de loja</button>
+        <button type="button" data-seller-tab="produtos" aria-selected="false">Meus produtos</button>
+        <button type="button" data-seller-tab="novo" aria-selected="false">Novo produto</button>
+      </div>
+
+      <div class="split-desk seller-layout">
+        <section class="panel" id="seller-pane-store">
+          <h2>Cadastro de loja</h2>
+          <form id="seller-form" class="stack-form">
+            <div class="field"><label for="loja">Nome da loja</label><input id="loja" name="loja" required></div>
+            <div class="field"><label for="cnpj">CNPJ</label><input id="cnpj" name="cnpj" required inputmode="numeric" autocomplete="off" placeholder="00.000.000/0000-00"></div>
+            <div class="field"><label for="cat">Categoria principal</label>
+              <select id="cat" name="cat" required>
+                <option value="">Selecione</option>
+                <option value="tecnologia">Tecnologia</option>
+                <option value="moda">Moda</option>
+                <option value="casa">Casa</option>
+                <option value="beleza">Beleza</option>
+                <option value="esportes">Esportes</option>
+                <option value="supermercado">Supermercado</option>
+                <option value="pet">Pet</option>
+                <option value="ferramentas">Ferramentas</option>
+              </select>
+            </div>
+            <div class="field"><label for="email">E-mail comercial</label><input id="email" name="email" type="email" required autocomplete="email"></div>
+            <div class="field"><label for="telefone">Telefone</label><input id="telefone" name="telefone" type="tel" required autocomplete="tel"></div>
+            <div class="field"><label for="cep">CEP fiscal</label><input id="cep" name="cep" inputmode="numeric" required placeholder="00000-000"></div>
+            <div class="field"><label for="sobre">Sobre a operação</label><textarea id="sobre" name="sobre" required minlength="20"></textarea></div>
+            <fieldset class="legal-consents">
+              <legend class="legal-consents-legend">Obrigações legais do vendedor</legend>
+              <div class="legal-consents-inner">
+                <p class="legal-consents-intro">Documentos em <a class="legal-consent-link" href="pages/termos.html" data-terms-section="">Termos e políticas</a>. Todos os itens são obrigatórios:</p>
+                <ul class="legal-consents-list">
+                  <li class="legal-consent-item">
+                    <label class="legal-consent-label"><input class="legal-consent-input" name="seller_consent_termos" type="checkbox" required><span class="legal-consent-text">Aceito os <a class="legal-consent-link" href="pages/termos.html" data-terms-section="termos-uso">Termos de Uso</a> na condição de vendedor.</span></label>
+                  </li>
+                  <li class="legal-consent-item">
+                    <label class="legal-consent-label"><input class="legal-consent-input" name="seller_consent_privacidade" type="checkbox" required><span class="legal-consent-text">Aceito a <a class="legal-consent-link" href="pages/termos.html" data-terms-section="privacidade">Política de Privacidade (LGPD)</a> e o <a class="legal-consent-link" href="pages/termos.html" data-terms-section="tratamento-dados">tratamento de dados</a> da loja.</span></label>
+                  </li>
+                  <li class="legal-consent-item">
+                    <label class="legal-consent-label"><input class="legal-consent-input" name="seller_consent_identidade" type="checkbox" required><span class="legal-consent-text">Declaro <a class="legal-consent-link" href="pages/termos.html" data-terms-section="veracidade-dados">veracidade do CNPJ</a> e a <a class="legal-consent-link" href="pages/termos.html" data-terms-section="protecao-identidade">identidade empresarial</a>.</span></label>
+                  </li>
+                  <li class="legal-consent-item">
+                    <label class="legal-consent-label"><input class="legal-consent-input" name="seller_consent_cdc" type="checkbox" required><span class="legal-consent-text">Comprometo-me com o <a class="legal-consent-link" href="pages/termos.html" data-terms-section="cdc">CDC</a> (informações, entrega, arrependimento e produtos conformes).</span></label>
+                  </li>
+                  <li class="legal-consent-item">
+                    <label class="legal-consent-label"><input class="legal-consent-input" name="seller_consent_judicial" type="checkbox" required><span class="legal-consent-text">Aceito as <a class="legal-consent-link" href="pages/termos.html" data-terms-section="judicial">disposições judiciais</a> e responsabilidade fiscal dos anúncios.</span></label>
+                  </li>
+                </ul>
+              </div>
+            </fieldset>
+            <p class="form-error" id="seller-error" role="alert"></p>
+            <button class="btn btn-primary" type="submit">Enviar cadastro</button>
+            <p class="meta" id="seller-ok" hidden>Loja registrada. Você já pode publicar produtos na aba Novo produto.</p>
+          </form>
+        </section>
+
+        <aside class="seller-aside">
+          <section class="panel" id="seller-pane-products" hidden>
+            <h2>Meus produtos</h2>
+            <div id="seller-product-list"></div>
+          </section>
+
+          <section class="panel" id="seller-pane-new" hidden>
+            <h2 id="product-form-title">Novo produto</h2>
+            <form id="product-form" class="stack-form">
+              <div class="field"><label for="title">Título</label><input id="title" name="title" required maxlength="120"></div>
+              <div class="field"><label for="brand">Marca</label><input id="brand" name="brand" required></div>
+              <div class="field"><label for="category">Categoria</label>
+                <select id="category" name="category" required>
+                  <option value="">Selecione</option>
+                  <option value="tecnologia">Tecnologia</option>
+                  <option value="moda">Moda</option>
+                  <option value="casa">Casa</option>
+                  <option value="beleza">Beleza</option>
+                  <option value="esportes">Esportes</option>
+                  <option value="supermercado">Supermercado</option>
+                  <option value="pet">Pet</option>
+                  <option value="ferramentas">Ferramentas</option>
+                </select>
+              </div>
+              <div class="field-row">
+                <div class="field"><label for="price">Preço (R$)</label><input id="price" name="price" type="number" step="0.01" min="0" required></div>
+                <div class="field"><label for="oldPrice">Preço anterior</label><input id="oldPrice" name="oldPrice" type="number" step="0.01" min="0"></div>
+                <div class="field"><label for="stock">Estoque</label><input id="stock" name="stock" type="number" min="0" required></div>
+              </div>
+              <div class="field"><label for="image">URL da imagem</label><input id="image" name="image" type="url" required placeholder="https://…"></div>
+              <div class="field"><label for="description">Descrição</label><textarea id="description" name="description" required minlength="20"></textarea></div>
+              <div class="field-row">
+                <div class="field"><label for="condition">Condição</label>
+                  <select id="condition" name="condition">
+                    <option value="novo">Novo</option>
+                    <option value="usado">Seminovo</option>
+                  </select>
+                </div>
+                <div class="field"><label for="shipping">Envio</label>
+                  <select id="shipping" name="shipping">
+                    <option value="rapido">Padrão</option>
+                    <option value="full">Mix Full</option>
+                    <option value="agendado">Agendado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field"><label for="tags">Tags (vírgula)</label><input id="tags" name="tags" placeholder="promo, lançamento"></div>
+              <div class="check-row">
+                <label class="check"><input name="freeShipping" type="checkbox"> Frete grátis</label>
+                <label class="check"><input name="deal" type="checkbox"> Oferta Mix</label>
+                <label class="check"><input name="featured" type="checkbox"> Destaque vitrine</label>
+              </div>
+              <p class="form-error" id="product-error" role="alert"></p>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Publicar produto</button>
+                <button class="btn btn-ghost" type="button" id="product-form-reset">Limpar</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <h3>Boas práticas</h3>
+            <ul class="meta seller-tips">
+              <li>Foto nítida, fundo neutro, título com modelo e diferencial.</li>
+              <li>Preço anterior só se houver desconto real (CDC).</li>
+              <li>Mix Full disponível para categorias com hub ativo.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
     </div>
   </main>
   <footer class="site-footer" id="site-footer"></footer>
   <div class="app-nav" id="app-nav"></div>
   <div class="toast-stack" id="toast-stack"></div>
   <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
   <script src="js/shopmix.js"></script>
 </body>
 </html>

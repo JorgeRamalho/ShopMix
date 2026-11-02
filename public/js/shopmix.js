@@ -1,5 +1,6 @@
 (() => {
   const DATA = window.SHOPMIX_DATA;
+  const STORE = window.SHOPMIX_STORE;
   const KEYS = {
     cart: "shopmix.cart",
     wish: "shopmix.wish",
@@ -10,6 +11,10 @@
     cep: "shopmix.cep",
     orders: "shopmix.orders",
   };
+  const PORTAL_ENTER_KEY = "shopmix.portalEnter";
+  const authPageHref = () => "pages/conta.html";
+  const portalPageHref = () => "pages/painel.html";
+  const accountHubHref = () => (state.user ? portalPageHref() : authPageHref());
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -35,6 +40,9 @@
 
   const params = () => new URLSearchParams(location.search);
 
+  /** Página legal — sempre sem # (nova aba abre no topo). */
+  const termsPageHref = () => "pages/termos.html";
+
   const normalize = (s) =>
     (s || "")
       .toString()
@@ -52,10 +60,161 @@
     setTimeout(() => el.remove(), 2800);
   };
 
+  const bindLegalConsentLinks = (root = document) => {
+    const fixTermsAnchor = (link) => {
+      const href = link.getAttribute("href") || "";
+      if (
+        link.classList.contains("legal-consent-link") ||
+        href.includes("termos") ||
+        link.dataset.termsSection !== undefined
+      ) {
+        link.href = termsPageHref();
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener");
+      }
+    };
+
+    $$(".legal-consent-link, .login-legal-note a[href*='termos'], a[data-terms-section]", root).forEach(
+      (link) => {
+        if (link.dataset.legalLinkBound) return;
+        link.dataset.legalLinkBound = "1";
+        fixTermsAnchor(link);
+        const stop = (e) => e.stopPropagation();
+        link.addEventListener("click", stop);
+        link.addEventListener("mousedown", stop);
+      },
+    );
+  };
+
+  const getLegalScrollOffset = () => {
+    const header = $(".site-header");
+    if (!header) return 128;
+    return Math.ceil(header.getBoundingClientRect().height) + 16;
+  };
+
+  const stripTermsHash = () => {
+    if (!location.hash) return;
+    history.replaceState(null, "", location.pathname + location.search);
+  };
+
+  const scrollTermsPageToTop = () => {
+    stripTermsHash();
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  };
+
+  const scrollLegalSection = (sectionId, behavior = "smooth") => {
+    const id = String(sectionId || "").replace(/^#/, "");
+    if (!id) {
+      scrollTermsPageToTop();
+      return;
+    }
+    const el = document.getElementById(id);
+    const target = el?.matches("article.legal-doc")
+      ? el.querySelector(":scope > h2") || el
+      : el;
+    if (!target) return;
+    const y = target.getBoundingClientRect().top + window.scrollY - getLegalScrollOffset();
+    window.scrollTo({ top: Math.max(0, y), left: 0, behavior });
+  };
+
+  /** Nova aba / entrada na página: sempre topo, nunca salto por #. */
+  const initLegalPageScroll = () => {
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    scrollTermsPageToTop();
+    requestAnimationFrame(scrollTermsPageToTop);
+    window.addEventListener("load", scrollTermsPageToTop);
+    [50, 150, 400, 800].forEach((ms) => window.setTimeout(scrollTermsPageToTop, ms));
+  };
+
+  const bindLegalToc = () => {
+    $$(".legal-toc a[href^='#']").forEach((link) => {
+      if (link.dataset.tocBound) return;
+      link.dataset.tocBound = "1";
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("href")?.slice(1);
+        if (!id) return;
+        e.preventDefault();
+        history.replaceState(null, "", `#${id}`);
+        scrollLegalSection(id, "smooth");
+      });
+    });
+  };
+
+  const bindRegisterPasswordMatch = () => {
+    const passInput = document.getElementById("reg-pass");
+    const confirmInput = document.getElementById("reg-ok");
+    const hint = document.getElementById("reg-pass-match");
+    const regError = document.getElementById("reg-error");
+    if (!passInput || !confirmInput || !hint || passInput.dataset.matchBound) return;
+    passInput.dataset.matchBound = "1";
+
+    const sync = () => {
+      const pass = passInput.value;
+      const confirm = confirmInput.value;
+      const minOk = pass.length >= 8;
+      const match = minOk && confirm.length > 0 && pass === confirm;
+
+      if (match) {
+        hint.textContent = "As senhas coincidem.";
+        hint.hidden = false;
+        if (regError?.textContent === "As senhas não coincidem.") regError.textContent = "";
+      } else {
+        hint.textContent = "";
+        hint.hidden = true;
+      }
+    };
+
+    passInput.addEventListener("input", sync);
+    confirmInput.addEventListener("input", sync);
+  };
+
+  const bindPasswordToggles = (root = document) => {
+    $$(".password-toggle", root).forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "1";
+      const input = document.getElementById(btn.dataset.passwordFor);
+      if (!input) return;
+      const label = $(".password-toggle-label", btn);
+      const sync = (show) => {
+        input.type = show ? "text" : "password";
+        btn.setAttribute("aria-pressed", String(show));
+        btn.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha");
+        if (label) label.textContent = show ? "Ocultar" : "Ver";
+      };
+      btn.addEventListener("click", () => sync(input.type === "password"));
+    });
+  };
+
+  const formatCpf = (cpf) => {
+    const d = (cpf || "").replace(/\D/g, "");
+    if (d.length !== 11) return "—";
+    return `***.***.***-${d.slice(-2)}`;
+  };
+
+  const formatPhone = (phone) => {
+    const d = (phone || "").replace(/\D/g, "");
+    if (d.length < 10) return phone || "—";
+    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  };
+
+  const catalogProducts = () => [
+    ...DATA.products,
+    ...(STORE?.listPublishedProducts?.() ?? []),
+  ];
+
+  const hydrateSessionUser = () => {
+    const sess = STORE?.getSession?.();
+    if (!sess?.userId) return null;
+    return STORE.getPublicUser(sess.userId);
+  };
+
   const state = {
     cart: read(KEYS.cart, []),
     wish: read(KEYS.wish, []),
-    user: read(KEYS.user, null),
+    user: hydrateSessionUser() || read(KEYS.user, null),
     recent: read(KEYS.recent, []),
     compare: read(KEYS.compare, []),
     cep: read(KEYS.cep, ""),
@@ -64,14 +223,18 @@
   const persist = () => {
     write(KEYS.cart, state.cart);
     write(KEYS.wish, state.wish);
-    write(KEYS.user, state.user);
+    if (state.user) {
+      write(KEYS.user, { name: state.user.name, email: state.user.email, id: state.user.id, role: state.user.role });
+    } else {
+      localStorage.removeItem(KEYS.user);
+    }
     write(KEYS.recent, state.recent);
     write(KEYS.compare, state.compare);
     write(KEYS.cep, state.cep);
     syncCounts();
   };
 
-  const productById = (id) => DATA.products.find((p) => p.id === id);
+  const productById = (id) => catalogProducts().find((p) => p.id === id);
 
   const cartCount = () => state.cart.reduce((n, i) => n + i.qty, 0);
   const cartTotal = () =>
@@ -111,7 +274,7 @@
 
   const searchProducts = (query, filters = {}) => {
     const q = normalize(query);
-    let list = DATA.products.slice();
+    let list = catalogProducts().slice();
     if (q) {
       list = list
         .map((p) => {
@@ -248,9 +411,9 @@
           <input class="vis-search" id="visual-input" type="file" accept="image/*" aria-label="Enviar imagem para busca visual">
         </div>
         <div class="header-actions">
-          <a class="header-link hide-sm" href="pages/conta.html">
+          <a class="header-link hide-sm" href="${accountHubHref()}">
             <span>Olá, ${state.user ? state.user.name.split(" ")[0] : "entre"}</span>
-            <strong>Conta e pedidos</strong>
+            <strong>Conta</strong>
           </a>
           <a class="header-link hide-sm" href="pages/vender.html">
             <span>Loja oficial</span>
@@ -272,12 +435,12 @@
               <a href="pages/catalogo.html?cupons=1">Cupons</a>
               <a href="pages/catalogo.html?cat=supermercado">Supermercado</a>
               <a href="pages/catalogo.html?cat=moda">Moda</a>
-              <a href="pages/conta.html#mixpay">MixPay</a>
+              <a href="${portalPageHref()}#mixpay">MixPay</a>
               <a href="pages/vender.html">Vender</a>
               <a href="pages/conscientizacao.html#contato">Contato</a>
-              <a href="pages/conta.html#compras">Compras</a>
-              <a href="pages/conta.html#favoritos">Favoritos</a>
-              <a href="pages/conta.html">Conta</a>
+              <a href="${portalPageHref()}#compras">Compras</a>
+              <a href="${portalPageHref()}#favoritos">Favoritos</a>
+              <a href="${accountHubHref()}">Conta</a>
             </nav>
           </div>
         </div>
@@ -293,11 +456,11 @@
             <a href="pages/catalogo.html?cupons=1">Cupons</a>
             <a href="pages/catalogo.html?cat=supermercado">Supermercado</a>
             <a href="pages/catalogo.html?cat=moda">Moda</a>
-            <a href="pages/conta.html#mixpay">MixPay</a>
+            <a href="${portalPageHref()}#mixpay">MixPay</a>
             <a href="pages/vender.html">Vender</a>
             <a href="pages/conscientizacao.html#contato">Contato</a>
-            <a href="pages/conta.html#compras">Compras</a>
-            <a href="pages/conta.html#favoritos">Favoritos</a>
+            <a href="${portalPageHref()}#compras">Compras</a>
+            <a href="${portalPageHref()}#favoritos">Favoritos</a>
           </div>
         </nav>
         <div class="cat-expand-backdrop" id="cat-expand-backdrop" hidden></div>
@@ -347,12 +510,12 @@
           <div>
             <h2 style="font-size:1rem">Vender</h2>
             <a href="pages/vender.html">Abrir loja</a>
-            <a href="pages/conta.html">Entrar</a>
+            <a href="${authPageHref()}">Entrar</a>
           </div>
           <div>
             <h2 style="font-size:1rem">Padrões</h2>
             <a href="pages/conscientizacao.html#acessibilidade">WCAG 2.2</a>
-            <a href="pages/conscientizacao.html#privacidade">LGPD</a>
+            <a href="pages/termos.html#privacidade">Termos e LGPD</a>
             <a href="sitemap.xml">Sitemap</a>
           </div>
         </div>
@@ -367,7 +530,7 @@
           <button type="button" id="app-cat-btn">${icon("grid")}Categorias</button>
           <a href="pages/catalogo.html?deal=1" ${page === "catalogo" && params().get("deal") === "1" ? 'aria-current="page"' : ""}>⚡Ofertas</a>
           <a class="badge-count app-nav-cart" href="pages/carrinho.html" ${page === "carrinho" ? 'aria-current="page"' : ""}>${icon("bag")}Sacola<i id="app-cart-count">0</i></a>
-          <a href="pages/conta.html" ${page === "conta" ? 'aria-current="page"' : ""}>${icon("user")}Conta</a>
+          <a href="${accountHubHref()}" ${page === "conta" || page === "painel" ? 'aria-current="page"' : ""}>${icon("user")}Conta</a>
         </nav>
       `;
     }
@@ -576,7 +739,7 @@
       <div class="wrap consent-banner-inner">
         <div class="consent-copy">
           <p id="consent-title"><strong>Privacidade ShopMix</strong></p>
-          <p class="meta">Usamos cookies essenciais de carrinho e, com o seu aceite, cookies de personalização da vitrine. Consulte a <a href="pages/conscientizacao.html#privacidade">política LGPD</a>.</p>
+          <p class="meta">Usamos cookies essenciais de carrinho e, com o seu aceite, cookies de personalização da vitrine. Consulte <a href="pages/termos.html#cookies">cookies</a> e <a href="pages/termos.html#privacidade">LGPD</a>.</p>
         </div>
         <div class="consent-actions">
           <button class="btn btn-primary" type="button" id="ok-c">Aceitar</button>
@@ -654,9 +817,10 @@
   };
 
   const home = () => {
-    const deals = dealsByCategoryMix(DATA.products.filter((p) => p.deal));
-    const featured = DATA.products.filter((p) => p.featured);
-    const live = DATA.products.filter((p) => p.live);
+    const all = catalogProducts();
+    const deals = dealsByCategoryMix(all.filter((p) => p.deal));
+    const featured = all.filter((p) => p.featured);
+    const live = all.filter((p) => p.live);
     $("#deal-rail").innerHTML = deals.map(card).join("");
     setupRailNav($("#deal-rail"), $("#deal-rail-prev"), $("#deal-rail-next"));
     $("#feat-grid").innerHTML = featured.map(card).join("");
@@ -749,7 +913,7 @@
       cupons: p.get("cupons") === "1",
       sort: p.get("sort") || "relevance",
     };
-    const brands = [...new Set(DATA.products.map((x) => x.brand))];
+    const brands = [...new Set(catalogProducts().map((x) => x.brand))];
     $("#filters").innerHTML = `
       <div class="filters-head">
         <h2>Filtros avançados</h2>
@@ -877,7 +1041,7 @@
     document.title = `${p.title} | ShopMix`;
     const desc = document.querySelector('meta[name="description"]');
     if (desc) desc.setAttribute("content", `${p.title} por ${money(p.price)} no ShopMix. ${p.description}`);
-    const related = DATA.products.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
+    const related = catalogProducts().filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
     let color = p.colors?.[0] || "";
     let size = p.sizes?.[0] || "";
     let photo = p.gallery[0];
@@ -1064,9 +1228,17 @@
         return;
       }
       const total = cartTotal();
+      const orderNumber = `MX-${Date.now().toString(36).toUpperCase()}`;
+      const items = state.cart.map((i) => {
+        const p = productById(i.id);
+        return { productId: i.id, title: p?.title, qty: i.qty, unitPrice: p?.price ?? 0 };
+      });
+      if (STORE?.saveOrder) {
+        STORE.saveOrder({ orderNumber, total, items });
+      }
       const orders = read(KEYS.orders, []);
       orders.push({
-        id: `MX-${Date.now().toString(36).toUpperCase()}`,
+        id: orderNumber,
         when: new Date().toLocaleString("pt-BR"),
         total,
       });
@@ -1078,29 +1250,250 @@
     });
   };
 
-  const account = () => {
-    const login = $("#login-form");
-    const reg = $("#register-form");
-    const tabs = $$("[data-tab]");
-    const show = (name) => {
-      $("#pane-login").hidden = name !== "login";
-      $("#pane-register").hidden = name !== "register";
-      tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === name)));
+  const renderAccountOrders = () => {
+    const ordersEl = $("#orders-list");
+    if (!ordersEl) return;
+    const dbOrders =
+      state.user?.id && STORE?.listOrdersForUser
+        ? STORE.listOrdersForUser(state.user.id)
+        : [];
+    const legacyOrders = read(KEYS.orders, []);
+    const merged = [
+      ...dbOrders.map((o) => ({
+        id: o.orderNumber,
+        when: new Date(o.createdAt).toLocaleString("pt-BR"),
+        total: o.total,
+      })),
+      ...legacyOrders,
+    ];
+    ordersEl.innerHTML = merged.length
+      ? `<ul class="order-list">${merged
+          .map((o) => `<li><strong>${o.id}</strong> · ${o.when} · ${money(o.total)}</li>`)
+          .join("")}</ul>`
+      : "<p class='meta'>Nenhum pedido ainda. Suas compras aparecem aqui após o checkout.</p>";
+  };
+
+  const renderAccountWishlist = () => {
+    const grid = $("#wish-grid");
+    if (!grid) return;
+    grid.innerHTML = state.wish.length
+      ? state.wish.map((id) => productById(id)).filter(Boolean).map(card).join("")
+      : "<p class='meta'>Nenhum favorito ainda.</p>";
+  };
+
+  const syncAccountSession = () => {
+    const sessionUser = hydrateSessionUser();
+    if (sessionUser) {
+      state.user = sessionUser;
+    } else if (STORE?.getSession?.()?.userId) {
+      STORE.logout?.();
+      state.user = null;
+    } else if (state.user?.id && STORE?.getPublicUser?.(state.user.id)) {
+      STORE.setSession(state.user.id);
+    } else if (state.user) {
+      state.user = null;
+    }
+    if (state.user) persist();
+    return Boolean(state.user);
+  };
+
+  const playPortalEnter = () => {
+    try {
+      if (sessionStorage.getItem(PORTAL_ENTER_KEY) !== "1") return;
+      sessionStorage.removeItem(PORTAL_ENTER_KEY);
+    } catch {
+      return;
+    }
+    document.body.classList.add("portal-enter");
+    requestAnimationFrame(() => {
+      document.body.classList.add("portal-enter-active");
+    });
+    window.setTimeout(() => {
+      document.body.classList.remove("portal-enter", "portal-enter-active");
+    }, 720);
+  };
+
+  const enterAccountPortal = (sectionId = "") => {
+    try {
+      sessionStorage.setItem(PORTAL_ENTER_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    const hash = sectionId && sectionId !== "criar-conta" ? `#${sectionId}` : "";
+    location.assign(`${portalPageHref()}${hash}`);
+  };
+
+  const scrollPortalSection = (sectionId) => {
+    if (!sectionId) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const target = document.getElementById(sectionId);
+    if (target) {
+      requestAnimationFrame(() =>
+        target.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+    }
+  };
+
+  const showAccountDashboard = () => {
+    const dash = $("#account-dashboard");
+    if (!dash || !state.user) return;
+
+    dash.hidden = false;
+    document.body.classList.add("portal-page");
+    document.title = `Painel | ${state.user.name.split(" ")[0]} | ShopMix`;
+
+    const first = state.user.name.split(" ")[0];
+    $("#dashboard-greeting").textContent = `Olá, ${first}`;
+
+    const summary = STORE?.getAccountDashboard?.(state.user.id);
+    const roleLabel =
+      summary?.role === "seller" ? "Comprador e vendedor" : "Comprador";
+    $("#dashboard-sub").textContent = summary
+      ? `${roleLabel} · membro desde ${new Date(summary.memberSince).toLocaleDateString("pt-BR")}`
+      : roleLabel;
+
+    const statsEl = $("#dashboard-stats");
+    if (statsEl && summary) {
+      const cartItems = cartCount();
+      const stats = [
+        { label: "Pedidos", value: String(summary.ordersCount) },
+        { label: "Total em compras", value: money(summary.ordersTotal) },
+        { label: "Favoritos", value: String(state.wish.length) },
+        { label: "Sacola", value: String(cartItems) },
+      ];
+      if (summary.store) {
+        stats.push({ label: "Anúncios ativos", value: String(summary.productsCount) });
+      }
+      statsEl.innerHTML = stats
+        .map(
+          (s) => `
+        <article class="stat-card">
+          <p class="stat-label">${s.label}</p>
+          <p class="stat-value">${s.value}</p>
+        </article>`,
+        )
+        .join("");
+    }
+
+    const dl = $("#profile-dl");
+    if (dl && summary) {
+      dl.innerHTML = `
+        <div><dt>Nome</dt><dd>${summary.fullName}</dd></div>
+        <div><dt>E-mail</dt><dd>${summary.email}</dd></div>
+        <div><dt>Telefone</dt><dd>${formatPhone(summary.phone)}</dd></div>
+        <div><dt>CPF</dt><dd>${formatCpf(summary.cpf)}</dd></div>
+        ${
+          summary.store
+            ? `<div><dt>Loja</dt><dd>${summary.store.name} · ${summary.store.category}</dd></div>`
+            : summary.wantsSeller
+              ? `<div><dt>Vendedor</dt><dd>Interesse em vender — <a href="vender.html">completar cadastro de loja</a></dd></div>`
+              : ""
+        }`;
+    }
+
+    const quick = $("#dashboard-quick-links");
+    if (quick) {
+      const sellerLink = summary?.store
+        ? `<a class="quick-link" href="vender.html">Gerenciar loja</a>`
+        : `<a class="quick-link" href="vender.html">Vender no ShopMix</a>`;
+      quick.innerHTML = `
+        <a class="quick-link" href="catalogo.html">Catálogo</a>
+        <a class="quick-link" href="carrinho.html">Sacola (${cartCount()})</a>
+        <a class="quick-link" href="checkout.html">Checkout</a>
+        ${sellerLink}
+        <a class="quick-link" href="#compras">Ver pedidos</a>
+        <a class="quick-link" href="#favoritos">Ver favoritos</a>`;
+    }
+
+    $("#logout").onclick = () => {
+      STORE?.logout?.();
+      state.user = null;
+      persist();
+      location.assign(authPageHref());
     };
-    tabs.forEach((t) => t.addEventListener("click", () => show(t.dataset.tab)));
-    login.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = login.email.value.trim();
-      const saved = state.user;
-      if (!saved || saved.email !== email || saved.pass !== login.senha.value) {
-        $("#login-error").textContent = "E-mail ou senha não conferem.";
+
+    renderAccountOrders();
+    renderAccountWishlist();
+    playPortalEnter();
+  };
+
+  const accountPortal = () => {
+    if (!syncAccountSession()) {
+      location.replace(authPageHref());
+      return;
+    }
+    showAccountDashboard();
+    const hash = location.hash.replace("#", "");
+    scrollPortalSection(hash);
+  };
+
+  const account = () => {
+    bindPasswordToggles();
+    bindRegisterPasswordMatch();
+    bindLegalConsentLinks();
+
+    if (syncAccountSession()) {
+      const hash = location.hash.replace("#", "");
+      enterAccountPortal(hash);
+      return;
+    }
+
+    const isLocalHost = ["localhost", "127.0.0.1", ""].includes(location.hostname);
+    if (isLocalHost && params().get("purge") === "all" && STORE?.purgeAllAccounts) {
+      const ok = window.confirm(
+        "Apagar TODAS as contas, lojas, produtos de vendedor e pedidos gravados neste navegador?",
+      );
+      if (ok) {
+        const result = STORE.purgeAllAccounts();
+        state.user = null;
+        persist();
+        toast(`${result.removedUsers} conta(s) removida(s)`);
+        history.replaceState(null, "", "conta.html");
+        location.reload();
         return;
       }
-      toast("Bem-vindo de volta");
-      location.href = "index.html";
-    });
-    reg.addEventListener("submit", (e) => {
+      history.replaceState(null, "", authPageHref());
+    }
+
+    const login = $("#login-form");
+    const reg = $("#register-form");
+    const tabs = $$("#auth-tabs [data-tab]");
+    const focusAuthSection = (name) => {
+      tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === name)));
+      const target = name === "register" ? $("#auth-register-block") : $("#auth-login-block");
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (name === "register") $("#reg-nome")?.focus({ preventScroll: true });
+      else $("#login-email")?.focus({ preventScroll: true });
+    };
+    tabs.forEach((t) => t.addEventListener("click", () => focusAuthSection(t.dataset.tab)));
+    if (location.hash === "#criar-conta") focusAuthSection("register");
+
+    login?.addEventListener("submit", async (e) => {
       e.preventDefault();
+      $("#login-error").textContent = "";
+      if (!STORE) {
+        $("#login-error").textContent = "Camada de dados indisponível.";
+        return;
+      }
+      const res = await STORE.login(login.email.value.trim(), login.senha.value);
+      if (!res.ok) {
+        $("#login-error").textContent =
+          res.error === "E-mail ou senha não conferem."
+            ? "E-mail ou senha não conferem. Se já se cadastrou antes, abra Criar conta, use o mesmo e-mail e senha, marque os termos e clique em Cadastrar para atualizar a senha neste navegador."
+            : res.error;
+        return;
+      }
+      state.user = STORE.getPublicUser(res.userId);
+      persist();
+      toast("Bem-vindo de volta");
+      enterAccountPortal();
+    });
+
+    reg?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("#reg-error").textContent = "";
       const name = reg.nome.value.trim();
       const email = reg.email.value.trim();
       const pass = reg.senha.value;
@@ -1108,61 +1501,241 @@
       if (!email.includes("@")) return ($("#reg-error").textContent = "Informe um e-mail válido.");
       if (pass.length < 8) return ($("#reg-error").textContent = "Senha com no mínimo 8 caracteres.");
       if (pass !== reg.confirma.value) return ($("#reg-error").textContent = "As senhas não coincidem.");
-      if (!reg.termos.checked) return ($("#reg-error").textContent = "Aceite os termos para continuar.");
-      state.user = { name, email, pass };
-      persist();
-      toast("Conta criada");
-      location.href = "index.html";
-    });
-    if (state.user) {
-      $("#session-box").hidden = false;
-      $("#session-name").textContent = state.user.name;
-      $("#logout").onclick = () => {
-        state.user = null;
-        persist();
-        location.reload();
-      };
-    }
-    $("#wish-grid").innerHTML = state.wish.length
-      ? state.wish.map((id) => productById(id)).filter(Boolean).map(card).join("")
-      : "<p class='meta'>Nenhum favorito ainda.</p>";
-    const orders = read(KEYS.orders, []);
-    const ordersEl = $("#orders-list");
-    if (ordersEl) {
-      ordersEl.innerHTML = orders.length
-        ? `<ul class="order-list">${orders
-            .slice()
-            .reverse()
-            .map(
-              (o) =>
-                `<li><strong>${o.id}</strong> · ${o.when} · ${money(o.total)}</li>`,
-            )
-            .join("")}</ul>`
-        : "<p class='meta'>Nenhum pedido ainda. Suas compras aparecem aqui após o checkout.</p>";
-    }
-    const hash = location.hash.replace("#", "");
-    if (hash) {
-      const target = document.getElementById(hash);
-      if (target) {
-        requestAnimationFrame(() =>
-          target.scrollIntoView({ behavior: "smooth", block: "start" }),
-        );
+      if (!STORE) return ($("#reg-error").textContent = "Camada de dados indisponível.");
+      const consentChecks = [
+        { el: reg.consent_termos_uso, msg: "Aceite os Termos de Uso." },
+        { el: reg.consent_privacidade, msg: "Aceite a Política de Privacidade (LGPD)." },
+        { el: reg.consent_protecao_identidade, msg: "Aceite a Política de proteção à identidade." },
+        { el: reg.consent_tratamento_dados, msg: "Autorize o tratamento de dados para a conta e transações." },
+        { el: reg.consent_cdc, msg: "Confirme ciência dos direitos do consumidor (CDC)." },
+        { el: reg.consent_cookies, msg: "Aceite a política de cookies essenciais." },
+        { el: reg.consent_judicial, msg: "Aceite as disposições judiciais." },
+        { el: reg.consent_veracidade, msg: "Confirme a veracidade dos dados informados." },
+      ];
+      for (const item of consentChecks) {
+        if (!item.el?.checked) return ($("#reg-error").textContent = item.msg);
       }
-    }
+      const wantsSeller = Boolean(reg.deseja_vendedor?.checked);
+      const res = await STORE.registerCustomer({
+        fullName: name,
+        email,
+        password: pass,
+        phone: reg.telefone?.value,
+        cpf: reg.cpf?.value,
+        wantsSeller,
+        consents: {
+          termsOfUse: reg.consent_termos_uso.checked,
+          privacyPolicy: reg.consent_privacidade.checked,
+          identityProtection: reg.consent_protecao_identidade.checked,
+          dataProcessing: reg.consent_tratamento_dados.checked,
+          consumerRights: reg.consent_cdc.checked,
+          cookiePolicy: reg.consent_cookies.checked,
+          judicialTerms: reg.consent_judicial.checked,
+          identityTruthfulness: reg.consent_veracidade.checked,
+          marketing: reg.consent_marketing?.checked,
+        },
+      });
+      if (!res.ok) return ($("#reg-error").textContent = res.error);
+      STORE.setSession(res.userId);
+      state.user = STORE.getPublicUser(res.userId);
+      persist();
+      toast(wantsSeller ? "Conta criada — vamos abrir sua loja" : "Conta criada");
+      if (wantsSeller) location.href = "vender.html";
+      else enterAccountPortal();
+    });
   };
 
   const seller = () => {
-    $("#seller-form").addEventListener("submit", (e) => {
+    bindLegalConsentLinks();
+
+    const tabs = $$("[data-seller-tab]");
+    const panes = {
+      loja: $("#seller-pane-store"),
+      produtos: $("#seller-pane-products"),
+      novo: $("#seller-pane-new"),
+    };
+    const showSellerTab = (name) => {
+      Object.entries(panes).forEach(([key, el]) => {
+        if (el) el.hidden = key !== name;
+      });
+      tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.sellerTab === name)));
+    };
+    tabs.forEach((t) => t.addEventListener("click", () => showSellerTab(t.dataset.sellerTab)));
+
+    const sess = STORE?.getSession?.();
+    const userId = sess?.userId || state.user?.id;
+    const store = userId && STORE?.getStoreForUser ? STORE.getStoreForUser(userId) : null;
+
+    if (!userId) {
+      $("#seller-login-hint").hidden = false;
+      $("#seller-form")
+        ?.querySelectorAll("input, select, textarea, button")
+        .forEach((el) => {
+          el.disabled = true;
+        });
+    } else if (store) {
+      $("#seller-store-name").textContent = store.name;
+      $("#seller-store-meta").textContent = `CNPJ ${store.cnpj} · ${store.category}`;
+      $("#seller-store-panel").hidden = false;
+      showSellerTab("produtos");
+    }
+
+    const renderProductList = () => {
+      const listEl = $("#seller-product-list");
+      if (!listEl || !store) return;
+      const items = STORE.listStoreProducts(store.id);
+      listEl.innerHTML = items.length
+        ? `<div class="seller-product-table">${items
+            .map(
+              (p) => `
+          <article class="seller-product-row">
+            <img src="${p.image}" alt="" width="64" height="64" loading="lazy">
+            <div>
+              <strong>${p.title}</strong>
+              <p class="meta">${money(p.price)} · estoque ${p.stock} · ${p.status}</p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" data-edit-product="${p.id}">Editar</button>
+            <button type="button" class="btn btn-danger btn-sm" data-del-product="${p.id}">Excluir</button>
+          </article>`,
+            )
+            .join("")}</div>`
+        : "<p class='meta'>Nenhum produto cadastrado. Use a aba Novo produto.</p>";
+      $$("[data-edit-product]", listEl).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const prod = items.find((x) => x.id === btn.dataset.editProduct);
+          if (!prod) return;
+          const form = $("#product-form");
+          form.dataset.editId = prod.id;
+          form.title.value = prod.title;
+          form.brand.value = prod.brand;
+          form.category.value = prod.category;
+          form.price.value = prod.price;
+          form.oldPrice.value = prod.oldPrice || "";
+          form.stock.value = prod.stock;
+          form.description.value = prod.description;
+          form.image.value = prod.image;
+          form.condition.value = prod.condition;
+          form.shipping.value = prod.shipping;
+          form.freeShipping.checked = prod.freeShipping;
+          form.deal.checked = prod.deal;
+          form.featured.checked = prod.featured;
+          form.tags.value = (prod.tags || []).join(", ");
+          $("#product-form-title").textContent = "Editar produto";
+          showSellerTab("novo");
+        });
+      });
+      $$("[data-del-product]", listEl).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const res = STORE.deleteProduct(store.id, btn.dataset.delProduct);
+          if (res.ok) {
+            toast("Produto removido");
+            renderProductList();
+          }
+        });
+      });
+    };
+
+    if (store) renderProductList();
+
+    $("#seller-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const f = e.target;
+      $("#seller-error").textContent = "";
       if (!f.checkValidity()) return f.reportValidity();
-      if (f.cnpj.value.replace(/\D/g, "").length !== 14) {
-        $("#seller-error").textContent = "CNPJ deve ter 14 dígitos.";
+      if (!STORE) {
+        $("#seller-error").textContent = "Camada de dados indisponível.";
         return;
       }
-      toast("Loja enviada para análise Mix");
+      const sellerLegal = [
+        { el: f.seller_consent_termos, msg: "Aceite os Termos de Uso para vendedores." },
+        { el: f.seller_consent_privacidade, msg: "Aceite a política LGPD da loja." },
+        { el: f.seller_consent_identidade, msg: "Confirme a veracidade do CNPJ e identidade empresarial." },
+        { el: f.seller_consent_cdc, msg: "Aceite as obrigações do CDC para vendedores." },
+        { el: f.seller_consent_judicial, msg: "Aceite as disposições judiciais." },
+      ];
+      for (const item of sellerLegal) {
+        if (!item.el?.checked) {
+          $("#seller-error").textContent = item.msg;
+          return;
+        }
+      }
+      const res = await STORE.submitSellerApplication(
+        {
+          storeName: f.loja.value,
+          cnpj: f.cnpj.value,
+          category: f.cat.value,
+          about: f.sobre.value,
+          contactEmail: f.email.value,
+          contactPhone: f.telefone.value,
+          fiscalCep: f.cep.value,
+          legalConsents: {
+            termsOfUse: f.seller_consent_termos.checked,
+            privacyPolicy: f.seller_consent_privacidade.checked,
+            identityTruthfulness: f.seller_consent_identidade.checked,
+            consumerRights: f.seller_consent_cdc.checked,
+            judicialTerms: f.seller_consent_judicial.checked,
+          },
+        },
+        userId,
+      );
+      if (!res.ok) {
+        $("#seller-error").textContent = res.error;
+        return;
+      }
+      toast("Loja aprovada — já pode cadastrar produtos");
       f.reset();
       $("#seller-ok").hidden = false;
+      setTimeout(() => location.reload(), 800);
+    });
+
+    $("#product-form")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const f = e.target;
+      $("#product-error").textContent = "";
+      if (!store) {
+        $("#product-error").textContent = "Cadastre a loja antes de anunciar.";
+        return;
+      }
+      if (!f.checkValidity()) return f.reportValidity();
+      const editId = f.dataset.editId || null;
+      const res = STORE.upsertProduct(
+        store.id,
+        {
+          title: f.title.value,
+          brand: f.brand.value,
+          category: f.category.value,
+          price: f.price.value,
+          oldPrice: f.oldPrice.value,
+          stock: f.stock.value,
+          description: f.description.value,
+          image: f.image.value,
+          condition: f.condition.value,
+          shipping: f.shipping.value,
+          freeShipping: f.freeShipping.checked,
+          deal: f.deal.checked,
+          featured: f.featured.checked,
+          tags: f.tags.value,
+          status: "published",
+        },
+        editId,
+      );
+      if (!res.ok) {
+        $("#product-error").textContent = res.error;
+        return;
+      }
+      toast(editId ? "Produto atualizado" : "Produto publicado na vitrine");
+      delete f.dataset.editId;
+      f.reset();
+      $("#product-form-title").textContent = "Novo produto";
+      renderProductList();
+      showSellerTab("produtos");
+    });
+
+    $("#product-form-reset")?.addEventListener("click", () => {
+      const f = $("#product-form");
+      f.reset();
+      delete f.dataset.editId;
+      $("#product-form-title").textContent = "Novo produto";
     });
   };
 
@@ -1193,6 +1766,13 @@
     if (page === "carrinho") cartPage();
     if (page === "checkout") checkout();
     if (page === "conta") account();
+    if (page === "painel") accountPortal();
     if (page === "vender") seller();
+    if (page === "termos") {
+      bindLegalConsentLinks();
+      bindLegalToc();
+      initLegalPageScroll();
+    }
+    bindLegalConsentLinks();
   });
 })();
