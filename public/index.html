@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>ShopMix — Marketplace híbrido | Tudo misturado. Tudo encontrado.</title>
+  <meta name="description" content="ShopMix é o marketplace que mistura busca precisa, vitrine visual, ofertas ao vivo e compra protegida. Tecnologia, moda, casa, beleza e mais com Mix Full.">
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="canonical" href="https://shopmix.app/">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta property="og:title" content="ShopMix — Tudo misturado. Tudo encontrado.">
+  <meta property="og:description" content="Marketplace híbrido com busca avançada, vitrine Mix Live e compra protegida.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ShopMix",
+    "url": "https://shopmix.app/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://shopmix.app/pages/catalogo.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+<body data-page="home">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo">
+    <section class="hero" aria-roledescription="carrossel" data-active-photos="3">
+      <article class="hero-slide is-active">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Vitrine Mix</p>
+            <h1>O marketplace que mistura o mundo.</h1>
+            <p class="lead">Manequins, vitrines e categorias no mesmo palco: moda, tech, casa e beleza em um único olhar.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--3" href="pages/catalogo.html" data-photos="3" aria-label="Explorar a vitrine — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=640&h=480&q=80" alt="Vitrine de loja com araras e peças em exposição" width="640" height="480" loading="eager" decoding="async"></figure>
+            <figure><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=640&h=480&q=80" alt="Manequim de moda em look editorial" width="640" height="480" loading="eager" decoding="async"></figure>
+            <figure><img src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&w=640&h=480&q=80" alt="Mesa de produtos e acessórios em display" width="640" height="480" loading="eager" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <article class="hero-slide">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Manequins</p>
+            <h1>A moda ganha corpo na vitrine.</h1>
+            <p class="lead">Looks em manequim, caimento real e a mesma densidade de informação que você vê no card.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--2" href="pages/catalogo.html?cat=moda" data-photos="2" aria-label="Abrir moda — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=640&h=480&q=80" alt="Cliente escolhendo look na vitrine de moda" width="640" height="480" loading="lazy" decoding="async"></figure>
+            <figure><img src="https://images.unsplash.com/photo-1560243563-062bfc001d68?auto=format&fit=crop&w=640&h=480&q=80" alt="Peças de roupa em exposição de boutique" width="640" height="480" loading="lazy" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <article class="hero-slide">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Tecnologia</p>
+            <h1>A ilha de gadgets do Mix.</h1>
+            <p class="lead">Fones, relógios e notebooks em display de categoria — com Mix Full e nota à vista.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--1" href="pages/catalogo.html?cat=tecnologia" data-photos="1" aria-label="Ver tecnologia — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=960&h=480&q=80" alt="Notebooks e Chromebooks em diferentes modos de uso" width="960" height="480" loading="lazy" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <article class="hero-slide">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Casa</p>
+            <h1>Ambientes prontos para morar.</h1>
+            <p class="lead">Sofás, luz e objetos de mesa como vitrine de ambiente — não só foto de catálogo.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--1" href="pages/catalogo.html?cat=casa" data-photos="1" aria-label="Ver casa — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=960&h=480&q=80" alt="Sala decorada com sofá e objetos de casa" width="960" height="480" loading="lazy" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <article class="hero-slide">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Beleza</p>
+            <h1>A bancada que vira vitrine.</h1>
+            <p class="lead">Séruns, kits e frascos em composição de display — ritual visível, preço honesto.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--1" href="pages/catalogo.html?cat=beleza" data-photos="1" aria-label="Ver beleza — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=960&h=480&q=80" alt="Display de produtos de beleza e maquiagem" width="960" height="480" loading="lazy" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <article class="hero-slide">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Esportes</p>
+            <h1>Performance em exposição.</h1>
+            <p class="lead">Tênis e looks fitness em vitrine de produto — energia de loja, não só academia.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--2" href="pages/catalogo.html?cat=esportes" data-photos="2" aria-label="Ver esportes — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&h=480&q=80" alt="Tênis esportivo em destaque na vitrine" width="640" height="480" loading="lazy" decoding="async"></figure>
+            <figure><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&h=480&q=80" alt="Look esportivo e moda fitness em exposição" width="640" height="480" loading="lazy" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <article class="hero-slide">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">Mix Full</p>
+            <h1>Chega rápido. Sem drama.</h1>
+            <p class="lead">Pacotes, checkout e entrega no mesmo fluxo — o que você vê na vitrine sai no ritmo Mix Full.</p>
+          </div>
+          <a class="hero-hit hero-visual hero-vitrine hero-vitrine--2" href="pages/catalogo.html?full=1" data-photos="2" aria-label="Ver itens Mix Full — toque na imagem">
+            <figure><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=640&h=480&q=80" alt="Pacotes coloridos prontos para envio Mix Full" width="640" height="480" loading="lazy" decoding="async"></figure>
+            <figure><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=640&h=480&q=80" alt="Cliente finalizando compra no balcão digital" width="640" height="480" loading="lazy" decoding="async"></figure>
+          </a>
+        </div>
+      </article>
+      <div class="wrap hero-controls">
+        <div class="hero-dots" id="hero-dots"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Ofertas Mix</h2>
+            <p>Janela relâmpago inspirada em flash deals — com relógio honesto.</p>
+          </div>
+          <div class="timer" id="deal-timer" aria-label="Tempo restante das ofertas"></div>
+        </div>
+        <div class="rail-shell" id="deal-rail-shell">
+          <button type="button" class="rail-arrow rail-arrow--prev" id="deal-rail-prev" aria-label="Ofertas anteriores" aria-disabled="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="rail" id="deal-rail" tabindex="-1"></div>
+          <button type="button" class="rail-arrow rail-arrow--next" id="deal-rail-next" aria-label="Próximas ofertas" aria-disabled="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Nossas categorias</h2>
+            <p>Três a sete caminhos claros — sem labirinto.</p>
+          </div>
+        </div>
+        <div class="cat-cards" id="cat-grid"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Mix Live</h2>
+            <p>Descoberta em movimento, no ritmo das lives de marketplace — sem o caos visual.</p>
+          </div>
+        </div>
+        <div class="live-grid" id="live-grid"></div>
+      </div>
+    </section>
+
+    <section class="trust-row" aria-label="Sinais de confiança">
+      <div class="wrap trust-grid">
+        <article class="trust-item"><span class="orb">🛡</span><div><strong>Compra protegida</strong><p class="meta">Pagamento em custódia até a confirmação.</p></div></article>
+        <article class="trust-item"><span class="orb">⚡</span><div><strong>Mix Full</strong><p class="meta">Separação no hub e entrega expressa.</p></div></article>
+        <article class="trust-item"><span class="orb">↩</span><div><strong>Devolve fácil</strong><p class="meta">7 dias no novo, 2 no seminovo verificado.</p></div></article>
+        <article class="trust-item"><span class="orb">★</span><div><strong>Avaliação visível</strong><p class="meta">Nota, fotos e selo de loja oficial no card.</p></div></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Vitrine recomendada</h2>
+            <p>Alta densidade útil: preço, frete, desconto e reputação no primeiro olhar.</p>
+          </div>
+          <a class="btn btn-ghost" href="pages/catalogo.html">Ver tudo</a>
+        </div>
+        <div class="product-grid" id="feat-grid"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Lojas oficiais</h2>
+            <p>Identidade do vendedor visível — confiança antes do clique.</p>
+          </div>
+        </div>
+        <div class="store-grid" id="store-grid"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap awareness">
+        <div>
+          <p class="kicker">Conscientização</p>
+          <h2>Comprar bem é um direito, não um truque.</h2>
+          <p>O ShopMix publica de forma clara prazos, reputação, condição do item e política de dados. Inspirado no que os grandes fazem de melhor — e recusando o que esconde informação.</p>
+          <a class="btn btn-primary" href="pages/conscientizacao.html">Ler o guia do consumidor</a>
+        </div>
+        <div>
+          <p><strong>O que herdamos com critério</strong></p>
+          <p class="meta">Busca-primeiro da Amazon. Densidade e garantia do Mercado Livre. Campanha e mobile da Shopee. Catálogo global do AliExpress. Vitrine de moda da Shein. Valor técnico do Banggood.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

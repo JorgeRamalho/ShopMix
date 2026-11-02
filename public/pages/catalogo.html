@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Catálogo e busca avançada | ShopMix</title>
+  <meta name="description" content="Filtre o catálogo ShopMix por categoria, preço, frete grátis, Mix Full, loja oficial, avaliação e condição. Resultados em tempo real com ordenação por intenção.">
+  <link rel="canonical" href="https://shopmix.app/pages/catalogo.html">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="catalogo">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section">
+    <button class="filter-fab" id="filter-open" type="button" aria-controls="filters" aria-expanded="false">Filtrar</button>
+    <div class="filter-backdrop" id="filter-backdrop" hidden></div>
+    <div class="wrap catalog-layout">
+      <aside class="filters" id="filters" aria-label="Filtros de busca"></aside>
+      <section>
+        <div class="toolbar">
+          <div>
+            <h1 id="result-title">Vitrine ShopMix</h1>
+            <p class="meta" id="result-count"></p>
+            <div class="chips" id="active-chips"></div>
+          </div>
+          <label class="field">Ordenar
+            <select id="sort">
+              <option value="relevance">Relevância</option>
+              <option value="price-asc">Menor preço</option>
+              <option value="price-desc">Maior preço</option>
+              <option value="rating">Melhor avaliados</option>
+              <option value="discount">Maior desconto</option>
+              <option value="new">Recentes</option>
+            </select>
+          </label>
+        </div>
+        <div class="product-grid" id="catalog-grid"></div>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

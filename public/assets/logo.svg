@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">ShopMix</title>
+  <desc id="logoDesc">Marca ShopMix: gota em degradê amarelo a vermelho sobre fundo branco.</desc>
+  <defs>
+    <linearGradient id="g" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE082"/>
+      <stop offset=".45" stop-color="#FFC107"/>
+      <stop offset="1" stop-color="#E53935"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="9" fill="#FFFFFF" stroke="#F0E4DC" stroke-width="1"/>
+  <path fill="url(#g)" d="M9 7c4 0 6 4 7 9 1-5 3-9 7-9 3 0 5 2 5 5 0 8-7 13-12 17C11 25 4 20 4 12c0-3 2-5 5-5z"/>
+</svg>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Venda no ShopMix | Abrir loja oficial</title>
+  <meta name="description" content="Cadastre sua loja no ShopMix: vitrine, Mix Full, reputação pública e checkout em custódia.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="vender">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section">
+    <div class="wrap split-desk">
+      <section>
+        <p class="kicker">Lado vendedor</p>
+        <h1>Abra uma loja sem esconder a operação.</h1>
+        <p>Painel com cadastro mínimo no primeiro anúncio e riqueza depois — o caminho que marketplaces sadios usam para não matar a oferta.</p>
+        <ul>
+          <li>Reputação e prazo visíveis no card</li>
+          <li>Opção Mix Full para fulfillment</li>
+          <li>Análise de CNPJ e categoria</li>
+        </ul>
+      </section>
+      <form class="panel" id="seller-form">
+        <h2>Cadastro de loja</h2>
+        <div class="field"><label for="loja">Nome da loja</label><input id="loja" name="loja" required></div>
+        <div class="field"><label for="cnpj">CNPJ</label><input id="cnpj" name="cnpj" required inputmode="numeric" autocomplete="off"></div>
+        <div class="field"><label for="cat">Categoria principal</label>
+          <select id="cat" name="cat" required>
+            <option value="">Selecione</option>
+            <option>Tecnologia</option>
+            <option>Moda</option>
+            <option>Casa</option>
+            <option>Beleza</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="field"><label for="sobre">Sobre a operação</label><textarea id="sobre" name="sobre" required minlength="20"></textarea></div>
+        <p class="form-error" id="seller-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Enviar para análise</button>
+        <p class="meta" id="seller-ok" hidden>Recebemos seu pedido. A equipe Mix responde em até 2 dias úteis.</p>
+      </form>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

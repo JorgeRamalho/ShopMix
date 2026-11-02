@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Checkout protegido | ShopMix</title>
+  <meta name="description" content="Finalize a compra ShopMix com endereço, pagamento e sem redigitar dados já informados.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="checkout">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section">
+    <div class="wrap">
+      <div class="steps" aria-hidden="true"><span class="is-on"></span><span class="is-on"></span><span></span></div>
+      <div class="checkout-grid split-desk">
+        <form class="panel" id="checkout-form">
+          <h1>Checkout Mix</h1>
+          <div class="field"><label for="nome">Nome completo</label><input id="nome" name="nome" required autocomplete="name"></div>
+          <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="cep">CEP de entrega</label><input id="cep" name="cep" required inputmode="numeric" autocomplete="postal-code"></div>
+          <div class="field"><label for="end">Endereço</label><input id="end" name="end" required autocomplete="street-address"></div>
+          <label class="check"><input id="same-addr" type="checkbox" checked> Usar o mesmo endereço para cobrança</label>
+          <div id="billing-fields" hidden>
+            <div class="field"><label for="bill">Endereço de cobrança</label><input id="bill" name="bill" autocomplete="billing street-address"></div>
+          </div>
+          <fieldset class="field">
+            <legend>Pagamento</legend>
+            <label class="check"><input type="radio" name="pay" value="pix" required checked> Pix à vista</label>
+            <label class="check"><input type="radio" name="pay" value="card"> Cartão em até 10x</label>
+          </fieldset>
+          <button class="btn btn-primary" type="submit">Confirmar pedido</button>
+        </form>
+        <aside class="summary">
+          <h2>A pagar</h2>
+          <p class="price" id="pay-total"></p>
+          <p class="meta">Valores retidos em custódia Mix Pay até você confirmar o recebimento.</p>
+        </aside>
+      </div>
+      <div class="empty" id="done" hidden>
+        <h2>Pedido enviado.</h2>
+        <p>Você receberá o código de rastreio no e-mail informado. Obrigado por misturar com a gente.</p>
+        <a class="btn btn-primary" href="index.html">Voltar à home</a>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sacola | ShopMix</title>
+  <meta name="description" content="Revise itens, quantidades e total da sacola ShopMix antes do checkout protegido.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="carrinho">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section">
+    <div class="wrap catalog-layout">
+      <section>
+        <h1>Sacola Mix</h1>
+        <div class="cart-list" id="cart-list"></div>
+      </section>
+      <aside class="summary" id="summary">
+        <h2>Resumo</h2>
+        <p id="sum-items"></p>
+        <p>Total <strong id="sum-total"></strong></p>
+        <a class="btn btn-primary" href="pages/checkout.html">Ir para o checkout</a>
+        <p class="meta">Compra protegida até a confirmação da entrega.</p>
+      </aside>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

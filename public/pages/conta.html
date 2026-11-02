@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Entrar ou criar conta | ShopMix</title>
+  <meta name="description" content="Acesse sua conta ShopMix ou cadastre-se para pedidos, favoritos e checkout sem redigitar dados.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="conta">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section">
+    <div class="wrap account-grid split-desk">
+      <section class="panel">
+        <div class="tabs" role="tablist">
+          <button type="button" data-tab="login" aria-selected="true">Entrar</button>
+          <button type="button" data-tab="register" aria-selected="false">Criar conta</button>
+        </div>
+        <div id="pane-login">
+          <h1>Olá de novo</h1>
+          <form id="login-form">
+            <div class="field"><label for="login-email">E-mail</label><input id="login-email" name="email" type="email" required autocomplete="username"></div>
+            <div class="field"><label for="login-pass">Senha</label><input id="login-pass" name="senha" type="password" required autocomplete="current-password"></div>
+            <p class="form-error" id="login-error" role="alert"></p>
+            <button class="btn btn-primary" type="submit">Entrar</button>
+          </form>
+        </div>
+        <div id="pane-register" hidden>
+          <h2>Criar conta Mix</h2>
+          <form id="register-form">
+            <div class="field"><label for="reg-nome">Nome</label><input id="reg-nome" name="nome" required autocomplete="name"></div>
+            <div class="field"><label for="reg-email">E-mail</label><input id="reg-email" name="email" type="email" required autocomplete="email"></div>
+            <div class="field"><label for="reg-pass">Senha</label><input id="reg-pass" name="senha" type="password" required minlength="8" autocomplete="new-password"></div>
+            <div class="field"><label for="reg-ok">Confirmar senha</label><input id="reg-ok" name="confirma" type="password" required></div>
+            <label class="check"><input name="termos" type="checkbox"> Aceito os termos e a política de privacidade</label>
+            <p class="form-error" id="reg-error" role="alert"></p>
+            <button class="btn btn-primary" type="submit">Cadastrar</button>
+          </form>
+        </div>
+        <div id="session-box" hidden>
+          <p>Conectado como <strong id="session-name"></strong></p>
+          <button class="btn btn-ghost" id="logout" type="button">Sair</button>
+        </div>
+      </section>
+      <div class="account-side">
+        <section class="panel" id="mixpay">
+          <h2>MixPay</h2>
+          <p class="meta">Pagamento protegido: o valor fica em custódia até você confirmar que recebeu o pedido. Use Pix ou cartão no checkout.</p>
+        </section>
+        <section class="panel" id="compras">
+          <h2>Compras</h2>
+          <div id="orders-list"></div>
+        </section>
+        <section class="panel" id="favoritos">
+          <h2>Favoritos</h2>
+          <div class="product-grid" id="wish-grid"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname;
+      var marker = "/public/";
+      var at = path.indexOf(marker);
+      var href = at === -1 ? "/" : path.slice(0, at + marker.length);
+      var base = document.createElement("base");
+      base.href = href;
+      document.head.appendChild(base);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Conscientização, UX e padrões públicos | ShopMix</title>
+  <meta name="description" content="Guia ShopMix de direitos do consumidor, LGPD, WCAG 2.2 e os conceitos autênticos extraídos de Amazon, Mercado Livre, Shopee, AliExpress, Shein e Banggood.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/shopmix.css">
+  <meta name="theme-color" content="#FFFFFF">
+</head>
+<body data-page="guia">
+  <header class="site-header" id="site-header"></header>
+  <main id="conteudo" class="section">
+    <div class="wrap">
+      <article class="article">
+        <p class="kicker">Pesquisa de mercado</p>
+        <h1>Autenticidade das plataformas — e o que o ShopMix fez com ela</h1>
+        <p>Pesquisamos padrões públicos de UX, identidade, SEO e confiança das grandes vitrines. O ShopMix <strong>não clona</strong> amarelo, laranja ou vermelho alheios: sintetiza o conceito e cria uma marca própria (branco como base + degradê amarelo a vermelho).</p>
+      </article>
+      <article class="article">
+        <h2>Amazon</h2>
+        <p>Promessa “de A a Z”, busca como porta de entrada, atalhos de teclado, blocos de oferta por intenção e tipografia Ember (humanista de tela). Cores corporativas: laranja, Squid Ink e branco. Confiança via Prime, avaliações e densidade de departamentos. Fonte da análise em tempo real: <a href="https://www.amazon.com.br/">amazon.com.br</a> e <a href="https://pages.awscloud.com/rs/112-TZM-766/images/Amazon%20Global_Brand_Guidelines_DF_v3.pdf">Amazon Brand Guidelines</a>.</p>
+      </article>
+      <article class="article">
+        <h2>Mercado Livre</h2>
+        <p>Header amarelo #FFE600, ação azul #3483FA, tipografia Proxima Nova, cards compactos com frete, Full e desconto. Sistema Andes. Busca pill + categorias + meios de pagamento + compra garantida. Análise Playwright e <a href="https://designmd.app/brands/mercado-livre">design system público</a>.</p>
+      </article>
+      <article class="article">
+        <h2>Shopee</h2>
+        <p>Laranja #EE4D2D, mobile-first, lives, moedas, filtros colados na busca e eventos 9.9 / 11.11. Energia alta, risco de ruído — o ShopMix herda o ritmo, não o caos. Fontes: <a href="https://brandpalettes.com/shopee-color-codes/">Shopee Color Codes</a> e <a href="https://blog.snappymob.com/ui-ux-audit-shopee-vs-lazada">auditoria Shopee vs Lazada</a>.</p>
+      </article>
+      <article class="article">
+        <h2>AliExpress</h2>
+        <p>Catálogo global, proteção do comprador, cupons empilhados e identidade vermelha/sparkle modernizada para um público mais jovem. Fonte: <a href="https://nestorbada.com/Ali-Express-Refresh">Ali Express Refresh</a>.</p>
+      </article>
+      <article class="article">
+        <h2>Shein e Banggood</h2>
+        <p>Shein: descoberta visual, drops diários, busca por foto e app como canal principal (<a href="https://play.google.com/store/apps/details/SHEIN_Shopping_Online?id=com.zzkko">ficha do app</a>). Banggood: valor em gadgets e logística regional. O Mix une moda + ferramenta no mesmo grafo de busca.</p>
+      </article>
+      <article class="article" id="acessibilidade">
+        <h2>Padrões públicos: WCAG 2.2, SEO e usabilidade</h2>
+        <p>Adotamos WCAG 2.2 AA (POUR): contraste, foco visível, alvos ≥ 24px (usamos 40–44px), alternativa a slider (campos numéricos), entrada não redundante no checkout, ajuda consistente, skip link, landmarks e HTML semântico. SEO compartilhado: headings, alt, JSON-LD Product/WebSite, canonical, Open Graph. Referências: <a href="https://www.clym.io/blog/ecommerce-accessibility-guide">Ecommerce Accessibility Guide 2026</a>, <a href="https://www.w3.org/WAI/WCAG22/quickref/">WCAG 2.2</a>, <a href="https://www.rigbyjs.com/blog/marketplace-ux">Marketplace UX feature guide</a>.</p>
+      </article>
+      <article class="article" id="privacidade">
+        <h2>LGPD e consentimento</h2>
+        <p>Carrinho e sessão usam armazenamento local essencial. Personalização da vitrine só após aceite. Você pode limitar a cookies essenciais no banner. Dados de cadastro ficam no seu navegador neste protótipo — não há envio a servidor.</p>
+      </article>
+      <article class="article" id="contato">
+        <h2>Contato ShopMix</h2>
+        <p>Dúvidas sobre pedidos, MixPay ou vendas: <a href="mailto:contato@shopmix.app">contato@shopmix.app</a>. Horário de atendimento: seg–sex, 9h–18h (Brasília).</p>
+        <p class="meta">Para abrir loja, use o fluxo em <a href="pages/vender.html">Vender no ShopMix</a>.</p>
+      </article>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <div class="app-nav" id="app-nav"></div>
+  <script src="js/data.js"></script>
+  <script src="js/shopmix.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "cleanUrls": true,
+  "directoryListing": false,
+  "redirects": [
+    { "source": "/catalogo", "destination": "/pages/catalogo.html", "type": 301 },
+    { "source": "/catalogo.html", "destination": "/pages/catalogo.html", "type": 301 },
+    { "source": "/conta", "destination": "/pages/conta.html", "type": 301 },
+    { "source": "/conta.html", "destination": "/pages/conta.html", "type": 301 },
+    { "source": "/vender", "destination": "/pages/vender.html", "type": 301 },
+    { "source": "/vender.html", "destination": "/pages/vender.html", "type": 301 },
+    { "source": "/conscientizacao", "destination": "/pages/conscientizacao.html", "type": 301 },
+    { "source": "/conscientizacao.html", "destination": "/pages/conscientizacao.html", "type": 301 },
+    { "source": "/carrinho", "destination": "/pages/carrinho.html", "type": 301 },
+    { "source": "/carrinho.html", "destination": "/pages/carrinho.html", "type": 301 },
+    { "source": "/produto", "destination": "/pages/produto.html", "type": 301 },
+    { "source": "/produto.html", "destination": "/pages/produto.html", "type": 301 },
+    { "source": "/checkout", "destination": "/pages/checkout.html", "type": 301 },
+    { "source": "/checkout.html", "destination": "/pages/checkout.html", "type": 301 }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "shopmix",
+  "private": true,
+  "description": "Marketplace híbrido ShopMix",
+  "scripts": {
+    "start": "npx --yes serve public -l 4173 -c serve.json"
+  }
+}
