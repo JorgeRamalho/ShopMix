@@ -14,8 +14,18 @@ Projeto-ShopMix/
 │   ├── pesquisas/referencias-de-mercado.md
 │   ├── estrutura/arquitetura-de-pastas.md
 │   └── organizacao/convencoes.md
+├── server/
+│   ├── index.mjs
+│   ├── db.mjs
+│   ├── workspace.mjs
+│   └── password.mjs
+├── database/
+│   └── schema.sql
 ├── scripts/
-│   └── check-images.mjs
+│   ├── check-images.mjs
+│   ├── verify-auth.mjs
+│   └── verify-workspace.mjs
+├── data/                  # banco local, fora do Git
 └── public/
     ├── index.html
     ├── robots.txt
@@ -24,7 +34,10 @@ Projeto-ShopMix/
     ├── sw.js
     ├── pages/
     ├── css/shopmix.css
+    ├── js/config.js
+    ├── js/api.js
     ├── js/data.js
+    ├── js/store.js
     ├── js/shopmix.js
     └── assets/
         ├── favicon.svg

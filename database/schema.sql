@@ -17,6 +17,7 @@ CREATE TABLE profiles (
   cpf CHAR(11),
   password_hash TEXT NOT NULL,
   terms_accepted_at TIMESTAMPTZ,
+  legal_consents JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -26,6 +27,15 @@ CREATE TABLE customer_profiles (
   default_cep CHAR(8),
   default_address JSONB,
   marketing_opt_in BOOLEAN NOT NULL DEFAULT false,
+  wants_seller BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -121,7 +131,43 @@ CREATE TABLE audit_log (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE INDEX idx_sessions_user ON sessions(user_id);
 CREATE INDEX idx_products_store ON products(store_id);
 CREATE INDEX idx_products_category ON products(category);
 CREATE INDEX idx_products_status ON products(status);
 CREATE INDEX idx_orders_user ON orders(user_id);
+
+-- Cópia local (SQLite) também guarda o navegador de cada conta ou visitante.
+CREATE TABLE workspaces (
+  id TEXT PRIMARY KEY,
+  user_id UUID UNIQUE REFERENCES profiles(id) ON DELETE CASCADE,
+  cep TEXT,
+  consent_json JSONB,
+  legacy_orders_json JSONB,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE devices (
+  token_hash TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE cart_items (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  product_id TEXT NOT NULL,
+  qty INTEGER NOT NULL CHECK (qty > 0 AND qty <= 99),
+  color TEXT NOT NULL DEFAULT '',
+  size TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE list_items (
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL CHECK (kind IN ('recent', 'compare')),
+  product_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  PRIMARY KEY (workspace_id, kind, position)
+);

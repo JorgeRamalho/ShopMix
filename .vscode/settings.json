@@ -1,3 +1,8 @@
 {
-  "liveServer.settings.root": "/public"
+  "liveServer.settings.root": "/public",
+  "liveServer.settings.proxy": {
+    "enable": true,
+    "baseUri": "/api",
+    "proxyUri": "http://127.0.0.1:4173/api"
+  }
 }

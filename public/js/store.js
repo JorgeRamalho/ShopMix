@@ -26,6 +26,7 @@
 
   const writeDb = (db) => {
     localStorage.setItem(DB_KEY, JSON.stringify(db));
+    window.SHOPMIX_API?.schedulePush?.();
   };
 
   const uid = (prefix) =>
@@ -211,6 +212,141 @@
     return { id: u.id, name: u.fullName, email: u.email, role: u.role };
   };
 
+  const authRequest = async (path, body) => {
+    if (!window.SHOPMIX_API?.request) {
+      return {
+        ok: false,
+        error: "Servidor de contas indisponível. Deixe o npm start rodando em http://localhost:4173.",
+      };
+    }
+    if (window.SHOPMIX_API.flush) await window.SHOPMIX_API.flush();
+    const payload = await window.SHOPMIX_API.request(path, { method: "POST", body });
+    if (payload?.token) window.SHOPMIX_API.setToken(payload.token);
+    if (payload?.ok && window.SHOPMIX_API.pull) await window.SHOPMIX_API.pull();
+    if (!payload || typeof payload.ok !== "boolean") {
+      return { ok: false, error: payload?.error || "Resposta inválida do servidor de contas." };
+    }
+    return payload;
+  };
+
+  const requiredConsentFlags = () => ({
+    termsOfUse: true,
+    privacyPolicy: true,
+    identityProtection: true,
+    dataProcessing: true,
+    consumerRights: true,
+    cookiePolicy: true,
+    judicialTerms: true,
+    identityTruthfulness: true,
+    marketing: false,
+  });
+
+  const consentsFromLocalUser = (user) => {
+    if (!user) return null;
+    return {
+      ...requiredConsentFlags(),
+      marketing: Boolean(user.marketingOptIn || user.legalConsents?.marketing),
+    };
+  };
+
+  const promoteLocalAccount = async (email, password) => {
+    migrateLegacyUser();
+    const db = readDb();
+    repairUserRecords(db);
+    const local = findUserByEmail(db, email);
+    if (!local) return null;
+    if (local.passwordHash === "server") {
+      return authRequest("/api/auth/register", {
+        fullName: local.fullName || "Cliente Mix",
+        email,
+        password,
+        phone: local.phone || null,
+        cpf: local.cpf || null,
+        wantsSeller: Boolean(local.wantsSeller),
+        consents: consentsFromLocalUser(local),
+      });
+    }
+    const verified = await verifyPassword(local.passwordHash, password);
+    if (!verified.ok) return null;
+    const consents = consentsFromLocalUser(local);
+    if (!consents) return null;
+    return authRequest("/api/auth/register", {
+      fullName: local.fullName || "Cliente Mix",
+      email,
+      password,
+      phone: local.phone || null,
+      cpf: local.cpf || null,
+      wantsSeller: Boolean(local.wantsSeller),
+      consents,
+    });
+  };
+
+  const adoptServerUser = (user) => {
+    if (!user?.id || !user.email) return null;
+    const db = readDb();
+    repairUserRecords(db);
+    const mail = normalizeEmail(user.email);
+    const now = new Date().toISOString();
+    let record = findUserByEmail(db, mail);
+    if (record && record.id !== user.id) {
+      const previousId = record.id;
+      const reassign = (value) => (value === previousId ? user.id : value);
+      record.id = user.id;
+      for (const profile of db.customerProfiles) profile.userId = reassign(profile.userId);
+      for (const app of db.sellerApplications) app.userId = reassign(app.userId);
+      for (const store of db.stores) store.ownerUserId = reassign(store.ownerUserId);
+      for (const order of db.orders) order.userId = reassign(order.userId);
+      for (const entry of db.auditLog) entry.userId = reassign(entry.userId);
+    }
+    if (!record) {
+      record = {
+        id: user.id,
+        role: user.role || "customer",
+        fullName: user.fullName,
+        email: mail,
+        phone: user.phone || null,
+        cpf: user.cpf || null,
+        passwordHash: "server",
+        termsAcceptedAt: user.termsAcceptedAt || now,
+        legalConsents: user.legalConsents || null,
+        createdAt: user.createdAt || now,
+        updatedAt: user.updatedAt || now,
+      };
+      db.users.push(record);
+    } else {
+      record.role = user.role || record.role;
+      record.fullName = user.fullName || record.fullName;
+      record.email = mail;
+      record.phone = user.phone ?? record.phone;
+      record.cpf = user.cpf ?? record.cpf;
+      record.passwordHash = "server";
+      record.termsAcceptedAt = user.termsAcceptedAt || record.termsAcceptedAt;
+      if (user.legalConsents) record.legalConsents = user.legalConsents;
+      record.updatedAt = user.updatedAt || now;
+    }
+
+    let profile = db.customerProfiles.find((item) => item.userId === user.id);
+    if (!profile) {
+      db.customerProfiles.push({
+        userId: user.id,
+        defaultCep: null,
+        defaultAddress: null,
+        marketingOptIn: Boolean(user.marketingOptIn),
+        wantsSeller: Boolean(user.wantsSeller),
+        wantsSellerAt: user.wantsSeller ? now : null,
+        createdAt: now,
+      });
+    } else {
+      profile.marketingOptIn = Boolean(user.marketingOptIn);
+      profile.wantsSeller = Boolean(user.wantsSeller);
+      if (user.wantsSeller) profile.wantsSellerAt = profile.wantsSellerAt || now;
+    }
+
+    writeDb(db);
+    setSession(user.id);
+    return user.id;
+  };
+
   const registerCustomer = async ({
     fullName,
     email,
@@ -238,108 +374,80 @@
       };
     }
 
-    const db = readDb();
-    repairUserRecords(db);
-    const mail = normalizeEmail(email);
-    let liveDb = readDb();
-    const existing = findUserByEmail(liveDb, mail);
-    const now = new Date().toISOString();
-    const passwordHash = await hashPassword(password);
-    const legalConsents = {
-      termsOfUseAt: now,
-      privacyPolicyAt: now,
-      identityProtectionAt: now,
-      dataProcessingAt: now,
-      consumerRightsAt: now,
-      cookiePolicyAt: now,
-      judicialTermsAt: now,
-      identityTruthfulnessAt: now,
-      marketingOptInAt: consents.marketing ? now : null,
-      policyVersion: "2026-11-02",
-    };
-
-    if (existing) {
-      existing.fullName = fullName.trim();
-      existing.email = mail;
-      existing.phone = phone?.trim() || null;
-      existing.cpf = cpf?.replace(/\D/g, "") || null;
-      existing.passwordHash = passwordHash;
-      existing.termsAcceptedAt = now;
-      existing.legalConsents = legalConsents;
-      existing.updatedAt = now;
-
-      let profile = liveDb.customerProfiles.find((p) => p.userId === existing.id);
-      if (!profile) {
-        liveDb.customerProfiles.push({
-          userId: existing.id,
-          defaultCep: null,
-          defaultAddress: null,
-          marketingOptIn: Boolean(consents.marketing),
-          wantsSeller: Boolean(wantsSeller),
-          wantsSellerAt: wantsSeller ? now : null,
-          createdAt: now,
-        });
-      } else {
-        profile.marketingOptIn = Boolean(consents.marketing);
-        profile.wantsSeller = Boolean(wantsSeller);
-        if (wantsSeller) profile.wantsSellerAt = profile.wantsSellerAt || now;
-      }
-
-      log(liveDb, "customer.register.update", "users", existing.id, existing.id, {
-        resetPassword: true,
-      });
-      writeDb(liveDb);
-      return { ok: true, userId: existing.id };
-    }
-
-    const userId = uid("usr");
-    db.users.push({
-      id: userId,
-      role: "customer",
-      fullName: fullName.trim(),
-      email: mail,
-      phone: phone?.trim() || null,
-      cpf: cpf?.replace(/\D/g, "") || null,
-      passwordHash,
-      termsAcceptedAt: now,
-      legalConsents,
-      createdAt: now,
-      updatedAt: now,
+    const result = await authRequest("/api/auth/register", {
+      fullName,
+      email,
+      password,
+      phone,
+      cpf,
+      wantsSeller,
+      consents,
     });
-    db.customerProfiles.push({
-      userId,
-      defaultCep: null,
-      defaultAddress: null,
-      marketingOptIn: Boolean(consents.marketing),
-      wantsSeller: Boolean(wantsSeller),
-      wantsSellerAt: wantsSeller ? now : null,
-      createdAt: now,
-    });
-    log(db, "customer.register", "users", userId, userId);
-    writeDb(db);
+    if (!result.ok) return { ok: false, error: result.error || "Não foi possível criar a conta." };
+    const userId = adoptServerUser(result.user);
+    if (!userId) return { ok: false, error: "Conta criada, mas a sessão local não foi gravada." };
     return { ok: true, userId };
   };
 
-  const login = async (email, password) => {
-    if (!password) return { ok: false, error: "E-mail ou senha não conferem." };
-    const db = readDb();
-    repairUserRecords(db);
+  const createServerAccountOnLogin = async (email, password) => {
+    if (!window.SHOPMIX_LOGIN_CREATES_ACCOUNT) return null;
     const mail = normalizeEmail(email);
-    const user = findUserByEmail(readDb(), mail);
-    if (!user) return { ok: false, error: "E-mail ou senha não conferem." };
-    const check = await verifyPassword(user.passwordHash, password);
-    if (!check.ok) return { ok: false, error: "E-mail ou senha não conferem." };
-    const freshDb = readDb();
-    const liveUser = findUserByEmail(freshDb, mail);
-    if (!liveUser) return { ok: false, error: "E-mail ou senha não conferem." };
-    if (check.upgrade || !isSha256Hex(liveUser.passwordHash)) {
-      liveUser.passwordHash = await hashPassword(password);
-      liveUser.updatedAt = new Date().toISOString();
+    const nameFromMail = mail.split("@")[0]?.replace(/[._-]+/g, " ").trim();
+    const fullName =
+      nameFromMail && nameFromMail.length >= 2
+        ? nameFromMail.replace(/\b\w/g, (c) => c.toUpperCase())
+        : "Cliente Mix";
+    return authRequest("/api/auth/register", {
+      fullName,
+      email,
+      password,
+      consents: requiredConsentFlags(),
+    });
+  };
+
+  const login = async (email, password) => {
+    const mail = normalizeEmail(email);
+    if (!mail || !mail.includes("@")) {
+      return { ok: false, error: "Informe um e-mail válido." };
     }
-    setSession(liveUser.id);
-    log(freshDb, "auth.login", "users", liveUser.id, liveUser.id);
-    writeDb(freshDb);
-    return { ok: true, userId: liveUser.id };
+    if (!password || password.length < 8) {
+      return { ok: false, error: "Senha com no mínimo 8 caracteres." };
+    }
+    let result = await authRequest("/api/auth/login", { email: mail, password });
+    if (!result.ok && result.status === 401) {
+      const promoted = await promoteLocalAccount(mail, password);
+      if (promoted?.ok) {
+        result = promoted;
+      } else if (promoted && !promoted.ok) {
+        result = promoted;
+      } else {
+        const created = await createServerAccountOnLogin(mail, password);
+        if (created?.ok) result = created;
+        else if (created && !created.ok) {
+          result =
+            created.status === 409
+              ? { ok: false, error: created.error || "E-mail ou senha não conferem." }
+              : created;
+        }
+      }
+    }
+    if (!result.ok) return { ok: false, error: result.error || "E-mail ou senha não conferem." };
+    const userId = adoptServerUser(result.user);
+    if (!userId) return { ok: false, error: "E-mail ou senha não conferem." };
+    return { ok: true, userId };
+  };
+
+  const logout = () => {
+    const token = window.SHOPMIX_API?.getToken?.() || "";
+    clearSession();
+    const send = window.SHOPMIX_API?.request
+      ? window.SHOPMIX_API.request("/api/auth/logout", { method: "POST", body: {}, token })
+      : fetch("/api/auth/logout", {
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+    window.SHOPMIX_API?.setToken?.("");
+    Promise.resolve(send).catch(() => {});
   };
 
   const submitSellerApplication = async (payload, userId) => {
@@ -572,8 +680,17 @@
 
   const exportSnapshot = () => readDb();
 
-  /** Remove todas as contas, lojas, produtos de vendedor e pedidos vinculados (protótipo local). */
-  const purgeAllAccounts = () => {
+  /** Remove contas do servidor local e a cópia da vitrine neste navegador. */
+  const purgeAllAccounts = async () => {
+    let removedServerUsers = 0;
+    try {
+      const payload = window.SHOPMIX_API?.request
+        ? await window.SHOPMIX_API.request("/api/auth/purge", { method: "POST" })
+        : null;
+      if (payload?.ok) removedServerUsers = Number(payload.removedUsers) || 0;
+    } catch {
+      /* servidor ausente */
+    }
     const db = readDb();
     const removedUsers = db.users.length;
     const removedStores = db.stores.length;
@@ -604,7 +721,7 @@
 
     return {
       ok: true,
-      removedUsers,
+      removedUsers: Math.max(removedUsers, removedServerUsers),
       removedStores,
       removedProducts,
       removedOrders,
@@ -614,7 +731,7 @@
   window.SHOPMIX_STORE = {
     registerCustomer,
     login,
-    logout: clearSession,
+    logout,
     getSession,
     setSession,
     getUserById,

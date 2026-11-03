@@ -24,6 +24,6 @@ Na raiz do repositório:
 npm start
 ```
 
-O comando sobe o conteúdo de `public/` em `http://localhost:4173`.
+O comando sobe o site e o banco em `http://localhost:4173`. Conta, senha, carrinho, favoritos, loja, produtos e pedidos ficam em `data/shopmix.sqlite`.
 
-No Live Server, abra `public/index.html`. Os estilos e scripts acompanham essa pasta. Se o servidor já estiver no ar, pare e inicie de novo depois desta correção.
+O Live Server (e qualquer hospedagem estática) mostra as páginas, mas não grava sozinho. Com `npm start` ligado, o navegador encontra a API em `http://127.0.0.1:4173` e envia os dados com um token. Em outro servidor, defina `window.SHOPMIX_API_BASE` em `public/js/config.js` com o endereço dessa API.

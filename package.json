@@ -3,6 +3,9 @@
   "private": true,
   "description": "Marketplace híbrido ShopMix",
   "scripts": {
-    "start": "npx --yes serve public -l 4173 -c serve.json"
+    "start": "node server/index.mjs",
+    "check:auth": "node scripts/verify-auth.mjs",
+    "check:workspace": "node scripts/verify-workspace.mjs",
+    "check:workspace": "node scripts/verify-workspace.mjs"
   }
 }

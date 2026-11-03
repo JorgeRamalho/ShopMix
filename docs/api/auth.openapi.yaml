@@ -1,0 +1,344 @@
+openapi: 3.0.3
+info:
+  title: ShopMix Auth
+  version: "1.1.0"
+  description: >
+    Cadastro, login, sessão e workspace. A senha é recebida só na requisição e
+    gravada como hash scrypt. Carrinho, favoritos, loja, produtos e pedidos
+    entram em PUT /api/workspace. Chamadas de outro endereço (Live Server)
+    usam Authorization Bearer; o servidor devolve o Origin em
+    Access-Control-Allow-Origin.
+servers:
+  - url: http://localhost:4173
+paths:
+  /api/auth/register:
+    post:
+      operationId: registerCustomer
+      summary: Cria a conta e inicia a sessão
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Conta criada
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccess"
+        "400":
+          description: Dados ou termos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+        "409":
+          description: E-mail já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+  /api/auth/login:
+    post:
+      operationId: login
+      summary: Entra com e-mail e senha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Sessão iniciada
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccess"
+        "401":
+          description: E-mail ou senha não conferem
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+  /api/auth/me:
+    get:
+      operationId: currentUser
+      summary: Lê a conta da sessão
+      parameters:
+        - in: cookie
+          name: shopmix_session
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sessão válida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccess"
+        "401":
+          description: Sessão ausente ou vencida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+  /api/auth/logout:
+    post:
+      operationId: logout
+      summary: Encerra a sessão
+      responses:
+        "200":
+          description: Sessão encerrada
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+  /api/health:
+    get:
+      operationId: health
+      summary: Confirma que a API está no ar
+      responses:
+        "200":
+          description: API disponível
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+  /api/session:
+    post:
+      operationId: openSession
+      summary: Abre um workspace de visitante ou devolve o token já válido
+      parameters:
+        - in: header
+          name: Authorization
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token já válido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionOpened"
+        "201":
+          description: Visitante criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionOpened"
+  /api/workspace:
+    get:
+      operationId: readWorkspace
+      summary: Lê carrinho, favoritos, loja, produtos e pedidos do token
+      parameters:
+        - $ref: "#/components/parameters/Bearer"
+      responses:
+        "200":
+          description: Snapshot do workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "401":
+          description: Token ausente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+    put:
+      operationId: writeWorkspace
+      summary: Substitui os dados deste workspace. Produtos publicados de outras lojas permanecem.
+      parameters:
+        - $ref: "#/components/parameters/Bearer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceWrite"
+      responses:
+        "200":
+          description: Snapshot gravado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "401":
+          description: Token ausente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthError"
+components:
+  parameters:
+    Bearer:
+      in: header
+      name: Authorization
+      required: true
+      schema:
+        type: string
+      description: Bearer token devolvido por /api/session, /api/auth/login ou /api/auth/register.
+  schemas:
+    SessionOpened:
+      type: object
+      required: [ok, token, workspaceId]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        token:
+          type: string
+        workspaceId:
+          type: string
+    WorkspaceWrite:
+      type: object
+      properties:
+        browser:
+          type: object
+          description: Carrinho, favoritos, recentes, comparação, CEP, consentimento e lista legada de pedidos.
+        catalog:
+          type: object
+          description: Loja, produtos, pedidos e candidatura de vendedor deste workspace.
+    Workspace:
+      type: object
+      required: [ok, workspaceId, browser, catalog]
+      properties:
+        ok:
+          type: boolean
+        workspaceId:
+          type: string
+        user:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/PublicUser"
+        browser:
+          type: object
+        catalog:
+          type: object
+    Consents:
+      type: object
+      required:
+        - termsOfUse
+        - privacyPolicy
+        - identityProtection
+        - dataProcessing
+        - consumerRights
+        - cookiePolicy
+        - judicialTerms
+        - identityTruthfulness
+      properties:
+        termsOfUse:
+          type: boolean
+        privacyPolicy:
+          type: boolean
+        identityProtection:
+          type: boolean
+        dataProcessing:
+          type: boolean
+        consumerRights:
+          type: boolean
+        cookiePolicy:
+          type: boolean
+        judicialTerms:
+          type: boolean
+        identityTruthfulness:
+          type: boolean
+        marketing:
+          type: boolean
+    RegisterRequest:
+      type: object
+      required: [fullName, email, password, consents]
+      properties:
+        fullName:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        phone:
+          type: string
+        cpf:
+          type: string
+        wantsSeller:
+          type: boolean
+        consents:
+          $ref: "#/components/schemas/Consents"
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    PublicUser:
+      type: object
+      required: [id, fullName, email, role]
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        cpf:
+          type: string
+          nullable: true
+        marketingOptIn:
+          type: boolean
+        wantsSeller:
+          type: boolean
+    AuthSuccess:
+      type: object
+      required: [ok, user]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        token:
+          type: string
+          description: Token Bearer para Live Server e outras origens. O cookie HttpOnly continua valendo no mesmo endereço.
+        user:
+          $ref: "#/components/schemas/PublicUser"
+        token:
+          type: string
+          description: Token Bearer para Live Server e outras origens
+    AuthError:
+      type: object
+      required: [ok, error]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string

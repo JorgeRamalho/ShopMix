@@ -38,13 +38,14 @@
             <div class="field field-password">
               <label for="login-pass">Senha</label>
               <div class="password-input-wrap">
-                <input id="login-pass" name="senha" type="password" required autocomplete="current-password">
+                <input id="login-pass" name="senha" type="password" required minlength="8" autocomplete="current-password">
                 <button type="button" class="password-toggle" data-password-for="login-pass" aria-label="Mostrar senha" aria-pressed="false">
                   <span class="password-toggle-label">Ver</span>
                 </button>
               </div>
             </div>
             <p class="form-error" id="login-error" role="alert"></p>
+            <p class="meta" id="login-api-hint" hidden role="status"></p>
             <button class="btn btn-primary" type="submit">Entrar</button>
             <p class="meta login-legal-note">Ao entrar, você confirma que leu os <a class="legal-consent-link" href="pages/termos.html" data-terms-section="">Termos e políticas</a> vigentes na data do acesso.</p>
           </form>
@@ -132,7 +133,7 @@
             </div>
           </fieldset>
           <p class="form-error" id="reg-error" role="alert"></p>
-          <p class="meta auth-register-hint">Se você já tentou entrar e a senha não funciona, use <strong>Criar conta</strong> com o mesmo e-mail para atualizar a senha neste navegador.</p>
+          <p class="meta auth-register-hint">Com o Live Server, deixe o <strong>npm start</strong> ligado. Na porta 5500 a página fala com a API em <code>127.0.0.1:4173</code>. O primeiro <strong>Entrar</strong> cria a conta no banco se ela ainda não existir. Depois disso, só a mesma senha entra.</p>
           <button class="btn btn-primary" type="submit">Cadastrar</button>
         </form>
       </section>
@@ -154,6 +155,8 @@
   <footer class="site-footer" id="site-footer"></footer>
   <div class="app-nav" id="app-nav"></div>
   <div class="toast-stack" id="toast-stack"></div>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
   <script src="js/shopmix.js"></script>

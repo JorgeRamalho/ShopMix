@@ -1,4 +1,4 @@
-const CACHE = "shopmix-shell-v4";
+const CACHE = "shopmix-shell-v9";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -14,6 +14,8 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/api/")) return;
   event.respondWith(
     fetch(event.request)
       .then((res) => {

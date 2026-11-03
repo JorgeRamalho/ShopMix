@@ -51,6 +51,7 @@ await (async () => {
   assert("legacy plain upgrade flag", (await verifyPasswordLogic(pass, pass)).upgrade === true);
 
   assert("store.js exporta login", /const login = async/.test(storeSrc));
+  assert("login promove conta local", /promoteLocalAccount/.test(storeSrc));
   assert("store usa normalizeEmail", /normalizeEmail/.test(storeSrc));
   assert("migração legada exige senha", /if \(!legacyPass\) return/.test(storeSrc));
   assert("dedupe prefere hash sha256", /isSha256Hex\(h\)\) score \+= 20/.test(storeSrc));

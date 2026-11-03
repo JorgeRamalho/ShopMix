@@ -1,6 +1,6 @@
 # Banco de dados ShopMix — jornadas de cliente e vendedor
 
-Este documento descreve **como os dados fluem** do cadastro à vitrine, o modelo relacional de produção e a **camada local** (`public/js/store.js`) usada no protótipo enquanto o backend Postgres não está ligado.
+Este documento descreve **como os dados fluem** do cadastro à vitrine. Conta, senha, carrinho, favoritos, loja, produtos e pedidos ficam no SQLite do servidor local (`data/shopmix.sqlite`, aberto por `npm start`). O navegador guarda uma cópia para abrir a página e envia as alterações para `PUT /api/workspace`. O Live Server usa esse mesmo banco quando o processo do `npm start` está no ar. O modelo PostgreSQL de produção continua em `database/schema.sql`.
 
 ## Visão geral
 
@@ -43,15 +43,15 @@ flowchart LR
 ## Jornada — cliente
 
 1. **Criar conta** (`conta.html` → `registerCustomer`)
-   - Nome, e-mail, senha (hash SHA-256 no protótipo; bcrypt/Argon2 em produção)
+   - Nome, e-mail, senha (hash scrypt no servidor; o texto da senha não é gravado)
    - Telefone, CPF opcional, aceite de termos com timestamp
    - Cria `profiles` + `customer_profiles`
 
-2. **Entrar** → sessão (`shopmix.session` local; JWT/Supabase Auth em produção)
+2. **Entrar** → sessão no servidor (`sessions`, cookie `HttpOnly`) e espelho em `shopmix.session` para a vitrine
 
 3. **Checkout** → `orders` + `order_items` (itens, total, endereço)
 
-4. **Favoritos / carrinho** → permanecem no navegador (`shopmix.cart`, `shopmix.wish`) até migrarmos para tabelas dedicadas
+4. **Favoritos / carrinho** → tabelas `cart_items` e `wish_items` no SQLite local, com cópia no navegador para a vitrine
 
 ## Jornada — vendedor
 
@@ -72,16 +72,20 @@ flowchart LR
 
 | Arquivo | Papel |
 | --- | --- |
-| `database/schema.sql` | DDL Postgres pronto para Supabase/Neon |
-| `public/js/store.js` | Persistência estruturada no `localStorage` |
+| `database/schema.sql` | DDL Postgres de produção, incluindo `profiles` e `sessions` |
+| `server/db.mjs` | Banco SQLite local: conta, senha, sessão e tabelas de comércio |
+| `server/workspace.mjs` | Carrinho, favoritos, loja, produtos e pedidos por workspace |
+| `server/index.mjs` | Servidor HTTP do site, `/api/auth/*` e `/api/workspace` |
+| `public/js/api.js` | Descobre a API (mesmo site, Live Server ou `SHOPMIX_API_BASE`) e sincroniza o banco |
+| `public/js/store.js` | Espelho da conta na vitrine |
 | `public/js/data.js` | Catálogo demonstrativo (seed) |
 
 ## Próximo passo em produção (sugerido)
 
-1. Supabase Auth para e-mail/senha + RLS por `owner_user_id` em `stores` e `products`
+1. Apontar o mesmo contrato `/api/auth/*` para o Postgres de `database/schema.sql` quando houver servidor Postgres
 2. Edge Function ou API para validação de CNPJ e antifraude
 3. Storage bucket para upload de imagens (substituir URL manual)
-4. Migrar carrinho/favoritos para tabelas quando houver login obrigatório
+4. Carrinho e favoritos já estão nas tabelas SQLite; no Postgres de produção, repetir `cart_items`, `wish_items`, `workspaces` e `devices`
 
 ## Exportação de dados (dev)
 

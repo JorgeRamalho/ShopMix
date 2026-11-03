@@ -70,11 +70,11 @@
         <h2>2. Política de Privacidade — Lei nº 13.709/2018 (LGPD)</h2>
         <p>Tratamos dados pessoais com finalidades determinadas, transparência e segurança, em conformidade com a LGPD e regulamentações da ANPD.</p>
         <h3>2.1 Controlador e operação</h3>
-        <p><strong>Controlador:</strong> ShopMix. <strong>Encarregado (DPO):</strong> ver seção 6. Neste protótipo, dados ficam no dispositivo (<code>shopmix.db.v1</code>); em produção, servidores contratados com cláusulas de proteção de dados.</p>
+        <p><strong>Controlador:</strong> ShopMix. <strong>Encarregado (DPO):</strong> ver seção 6. Conta, senha (hash scrypt), carrinho, favoritos, loja, produtos e pedidos ficam no banco do servidor (<code>data/shopmix.sqlite</code>). O navegador guarda uma cópia para a vitrine continuar aberta. Em produção, o mesmo modelo vai para servidores contratados com cláusulas de proteção de dados.</p>
         <h3>2.2 Dados coletados no cadastro</h3>
         <ul>
           <li>Identificação: nome completo, e-mail, telefone, CPF (opcional);</li>
-          <li>Autenticação: senha (hash SHA-256 no protótipo; bcrypt/Argon2 em produção);</li>
+          <li>Autenticação: senha com hash scrypt no servidor. A senha em texto não é gravada;</li>
           <li>Transacionais: pedidos, endereço de entrega no checkout, histórico de favoritos e carrinho;</li>
           <li>Vendedor: razão social/nome da loja, CNPJ, CEP fiscal, descrição comercial;</li>
           <li>Técnicos: logs essenciais, consentimentos com data/hora, preferências de cookies.</li>
@@ -152,6 +152,8 @@
   </main>
   <footer class="site-footer" id="site-footer"></footer>
   <div class="app-nav" id="app-nav"></div>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
   <script src="js/shopmix.js"></script>

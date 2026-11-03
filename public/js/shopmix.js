@@ -232,6 +232,16 @@
     write(KEYS.compare, state.compare);
     write(KEYS.cep, state.cep);
     syncCounts();
+    window.SHOPMIX_API?.schedulePush?.();
+  };
+
+  const applyStoredState = () => {
+    state.cart = read(KEYS.cart, []);
+    state.wish = read(KEYS.wish, []);
+    state.user = hydrateSessionUser() || read(KEYS.user, null);
+    state.recent = read(KEYS.recent, []);
+    state.compare = read(KEYS.compare, []);
+    state.cep = read(KEYS.cep, "");
   };
 
   const productById = (id) => catalogProducts().find((p) => p.id === id);
@@ -750,10 +760,12 @@
     document.body.appendChild(box);
     $("#ok-c").onclick = () => {
       write(KEYS.consent, { all: true, at: Date.now() });
+      window.SHOPMIX_API?.schedulePush?.();
       box.remove();
     };
     $("#no-c").onclick = () => {
       write(KEYS.consent, { all: false, at: Date.now() });
+      window.SHOPMIX_API?.schedulePush?.();
       box.remove();
     };
   };
@@ -1434,6 +1446,32 @@
     bindRegisterPasswordMatch();
     bindLegalConsentLinks();
 
+    const apiHint = $("#login-api-hint");
+    const showApiHint = (message, isError) => {
+      if (!apiHint) return;
+      apiHint.hidden = false;
+      apiHint.textContent = message;
+      apiHint.classList.toggle("form-error", Boolean(isError));
+    };
+    void (async () => {
+      const configured = String(window.SHOPMIX_API_BASE || "").replace(/\/$/, "");
+      const healthUrl = configured ? `${configured}/api/health` : "/api/health";
+      try {
+        const res = await fetch(healthUrl, {
+          headers: { Accept: "application/json" },
+          signal: AbortSignal.timeout(2500),
+        });
+        const data = await res.json();
+        if (res.ok && data?.ok) return;
+      } catch {
+        /* fall through */
+      }
+      showApiHint(
+        "Servidor de contas offline. Na pasta do projeto rode npm start (porta 4173) e recarregue esta página.",
+        true,
+      );
+    })();
+
     if (syncAccountSession()) {
       const hash = location.hash.replace("#", "");
       enterAccountPortal(hash);
@@ -1446,12 +1484,13 @@
         "Apagar TODAS as contas, lojas, produtos de vendedor e pedidos gravados neste navegador?",
       );
       if (ok) {
-        const result = STORE.purgeAllAccounts();
-        state.user = null;
-        persist();
-        toast(`${result.removedUsers} conta(s) removida(s)`);
-        history.replaceState(null, "", "conta.html");
-        location.reload();
+        STORE.purgeAllAccounts().then((result) => {
+          state.user = null;
+          persist();
+          toast(`${result.removedUsers} conta(s) removida(s)`);
+          history.replaceState(null, "", "conta.html");
+          location.reload();
+        });
         return;
       }
       history.replaceState(null, "", authPageHref());
@@ -1477,14 +1516,22 @@
         $("#login-error").textContent = "Camada de dados indisponível.";
         return;
       }
-      const res = await STORE.login(login.email.value.trim(), login.senha.value);
-      if (!res.ok) {
-        $("#login-error").textContent =
-          res.error === "E-mail ou senha não conferem."
-            ? "E-mail ou senha não conferem. Se já se cadastrou antes, abra Criar conta, use o mesmo e-mail e senha, marque os termos e clique em Cadastrar para atualizar a senha neste navegador."
-            : res.error;
+      const email = login.email.value.trim();
+      const pass = login.senha.value;
+      if (!email.includes("@")) {
+        $("#login-error").textContent = "Informe um e-mail válido.";
         return;
       }
+      if (pass.length < 8) {
+        $("#login-error").textContent = "Senha com no mínimo 8 caracteres.";
+        return;
+      }
+      const res = await STORE.login(email, pass);
+      if (!res.ok) {
+        $("#login-error").textContent = res.error;
+        return;
+      }
+      applyStoredState();
       state.user = STORE.getPublicUser(res.userId);
       persist();
       toast("Bem-vindo de volta");
@@ -1537,6 +1584,7 @@
       });
       if (!res.ok) return ($("#reg-error").textContent = res.error);
       STORE.setSession(res.userId);
+      applyStoredState();
       state.user = STORE.getPublicUser(res.userId);
       persist();
       toast(wantsSeller ? "Conta criada — vamos abrir sua loja" : "Conta criada");
@@ -1756,7 +1804,15 @@
     });
   };
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (window.SHOPMIX_API?.hydrate) {
+      try {
+        await window.SHOPMIX_API.hydrate();
+      } catch {
+        /* a vitrine continua com a cópia local */
+      }
+    }
+    applyStoredState();
     chrome();
     pwa();
     const page = document.body.dataset.page;
